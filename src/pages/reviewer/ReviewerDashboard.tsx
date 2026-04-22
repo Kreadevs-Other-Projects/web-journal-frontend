@@ -71,7 +71,6 @@ interface Paper {
   category?: string;
   submittedDate?: string;
   dueDate?: string;
-  priority?: "high" | "medium" | "low";
   review_decision?: string;
   comments?: string;
   ce_override?: boolean;
@@ -152,13 +151,12 @@ export default function ReviewerDashboard() {
         category: paper.category || "Uncategorized",
         submittedDate:
           paper.submittedDate || new Date().toISOString().split("T")[0],
-        dueDate:
-          paper.dueDate ||
-          new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
-            .toISOString()
-            .split("T")[0],
+        // dueDate:
+        //   paper.dueDate ||
+        //   new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
+        //     .toISOString()
+        //     .split("T")[0],
         version: paper.version_number ? `v${paper.version_number}` : "v1",
-        priority: paper.priority || "medium",
       }));
 
       const completed: Paper[] = allPapers
@@ -172,7 +170,6 @@ export default function ReviewerDashboard() {
           abstract: paper.abstract || "Abstract not available",
           category: paper.category || "Uncategorized",
           version: paper.version_number ? `v${paper.version_number}` : "v1",
-          priority: paper.priority || "medium",
         }));
 
       setPapers(formattedPending);
@@ -941,7 +938,9 @@ export default function ReviewerDashboard() {
                             className="min-h-[150px] input-glow"
                             required
                           />
-                          <p className="text-xs text-muted-foreground">These comments will be shared with the authors.</p>
+                          <p className="text-xs text-muted-foreground">
+                            These comments will be shared with the authors.
+                          </p>
                         </div>
 
                         <div className="space-y-2">
@@ -954,11 +953,16 @@ export default function ReviewerDashboard() {
                           <Textarea
                             id="confidentialComments"
                             value={confidentialComments}
-                            onChange={(e) => setConfidentialComments(e.target.value)}
+                            onChange={(e) =>
+                              setConfidentialComments(e.target.value)
+                            }
                             placeholder="Add comments for the editorial team only — not visible to authors..."
                             className="min-h-[100px] input-glow"
                           />
-                          <p className="text-xs text-muted-foreground">These comments are only visible to Associate Editor and Chief Editor.</p>
+                          <p className="text-xs text-muted-foreground">
+                            These comments are only visible to Associate Editor
+                            and Chief Editor.
+                          </p>
                         </div>
 
                         <div className="space-y-3">
@@ -1150,7 +1154,7 @@ export default function ReviewerDashboard() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[
                 {
                   label: "Pending Reviews",
@@ -1164,12 +1168,12 @@ export default function ReviewerDashboard() {
                   icon: CheckCircle2,
                   color: "text-success",
                 },
-                {
-                  label: "Overdue",
-                  value: getOverdueCount(),
-                  icon: AlertTriangle,
-                  color: "text-destructive",
-                },
+                // {
+                //   label: "Overdue",
+                //   value: getOverdueCount(),
+                //   icon: AlertTriangle,
+                //   color: "text-destructive",
+                // },
                 // {
                 //   label: "Avg Response Time",
                 //   value: "4.2 days",
@@ -1242,16 +1246,6 @@ export default function ReviewerDashboard() {
                                     {paper.journal_name
                                       ? `${paper.journal_name} • ${paper.paper_id}`
                                       : paper.paper_id}
-                                  </Badge>
-                                  <Badge
-                                    className={cn(
-                                      "text-xs",
-                                      getPriorityColor(
-                                        paper.priority || "medium",
-                                      ),
-                                    )}
-                                  >
-                                    {paper.priority} priority
                                   </Badge>
                                   <Badge
                                     variant="secondary"
