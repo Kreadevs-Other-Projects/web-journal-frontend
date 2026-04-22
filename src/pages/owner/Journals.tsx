@@ -31,7 +31,7 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { url } from "@/url";
 import { useToast } from "@/hooks/use-toast";
-import { generateAcronym } from "../../../../server/src/utils/acronym";
+import { generateAcronym } from "@/services/acronym";
 
 interface Journal {
   id: string;
