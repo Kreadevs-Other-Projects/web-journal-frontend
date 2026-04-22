@@ -49,7 +49,9 @@ export function KeywordInput({
         .then((r) => r.json())
         .then((d) => {
           if (d.keywords) {
-            setSuggestions(d.keywords.filter((k: string) => !value.includes(k)));
+            setSuggestions(
+              d.keywords.filter((k: string) => !value.includes(k)),
+            );
           }
         })
         .catch(() => {});
@@ -86,7 +88,6 @@ export function KeywordInput({
 
   return (
     <div className="space-y-2">
-      {/* Journal-level suggested keywords */}
       {visibleJournalSuggestions.length > 0 && (
         <div>
           <p className="text-xs text-muted-foreground mb-1">
@@ -108,7 +109,6 @@ export function KeywordInput({
         </div>
       )}
 
-      {/* Chip input */}
       <div className="relative">
         <div
           className={`flex flex-wrap gap-1.5 p-2 border rounded-lg min-h-[42px] focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary ${
@@ -150,7 +150,6 @@ export function KeywordInput({
           )}
         </div>
 
-        {/* Dropdown suggestions */}
         {showSuggestions && suggestions.length > 0 && (
           <div className="absolute top-full left-0 right-0 z-50 bg-background border rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto">
             {suggestions.map((suggestion) => (
@@ -168,7 +167,9 @@ export function KeywordInput({
         )}
       </div>
 
-      <p className={`text-xs ${error ? "text-destructive" : "text-muted-foreground"}`}>
+      <p
+        className={`text-xs ${error ? "text-destructive" : "text-muted-foreground"}`}
+      >
         {error
           ? error
           : `${value.length}/${max} keywords${value.length >= max ? " — maximum reached" : ""}`}

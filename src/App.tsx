@@ -95,7 +95,6 @@ const App = () => (
             <AnimatePresence mode="wait">
               <InitialAuthCheck>
                 <Routes>
-                  {/* PUBLIC ROUTES WITH NAVBAR + FOOTER */}
                   <Route element={<PublicRoute />}>
                     <Route element={<PublicLayout />}>
                       <Route path="/" element={<LandingPage />} />
@@ -121,13 +120,11 @@ const App = () => (
                     </Route>
                   </Route>
 
-                  {/* AUTH ROUTES (NO NAVBAR) */}
                   <Route element={<AuthLayout />}>
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/signup" element={<SignupPage />} />
                   </Route>
 
-                  {/* PUBLIC SPECIAL */}
                   <Route
                     path="/paper-approval/:token"
                     element={<PaperApprovalPage />}
@@ -137,14 +134,12 @@ const App = () => (
                     element={<AcceptInvitation />}
                   />
 
-                  {/* PROFILE FLOW */}
                   <Route
                     path="/complete-profile"
                     element={<CompleteProfilePage />}
                   />
                   <Route path="/unauthorized" element={<Unauthorized />} />
 
-                  {/* AUTHOR */}
                   <Route
                     element={
                       <ProtectedRoute

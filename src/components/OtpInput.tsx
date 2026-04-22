@@ -72,7 +72,9 @@ export function OtpInput({
   }, []);
 
   const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60).toString().padStart(2, "0");
+    const m = Math.floor(seconds / 60)
+      .toString()
+      .padStart(2, "0");
     const s = (seconds % 60).toString().padStart(2, "0");
     return `${m}:${s}`;
   };
@@ -96,7 +98,10 @@ export function OtpInput({
     }
   };
 
-  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (
+    index: number,
+    e: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
     if (e.key === "Backspace") {
       if (digits[index]) {
         const newDigits = [...digits];
@@ -117,7 +122,10 @@ export function OtpInput({
 
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
-    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    const pasted = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, 6);
     if (!pasted) return;
 
     const newDigits = Array(6).fill("");
@@ -157,14 +165,15 @@ export function OtpInput({
         <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
           <Shield className="h-6 w-6 text-primary" />
         </div>
-        <h3 className="text-lg font-semibold text-foreground">Verify your email</h3>
+        <h3 className="text-lg font-semibold text-foreground">
+          Verify your email
+        </h3>
         <p className="text-sm text-muted-foreground max-w-xs">
           We sent a 6-digit verification code to
         </p>
         <p className="text-sm font-medium text-foreground">{email}</p>
       </div>
 
-      {/* 6-box OTP input */}
       <div className="flex justify-center gap-2" onPaste={handlePaste}>
         {digits.map((digit, i) => (
           <input
@@ -181,8 +190,11 @@ export function OtpInput({
               "w-12 h-14 text-center text-xl font-bold rounded-lg border-2 bg-background/50",
               "focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20",
               "transition-all duration-150",
-              digit ? "border-primary/60 text-foreground" : "border-border text-muted-foreground",
-              error && "border-destructive focus:border-destructive focus:ring-destructive/20",
+              digit
+                ? "border-primary/60 text-foreground"
+                : "border-border text-muted-foreground",
+              error &&
+                "border-destructive focus:border-destructive focus:ring-destructive/20",
               isLoading && "opacity-50 cursor-not-allowed",
             )}
           />
@@ -196,21 +208,26 @@ export function OtpInput({
         </p>
       )}
 
-      {/* Countdown & expiry */}
       <div className="space-y-1">
         {countdown > 0 ? (
           <p className="text-sm text-muted-foreground">
             Code expires in:{" "}
-            <span className={cn("font-mono font-medium", countdown < 60 ? "text-destructive" : "text-foreground")}>
+            <span
+              className={cn(
+                "font-mono font-medium",
+                countdown < 60 ? "text-destructive" : "text-foreground",
+              )}
+            >
               {formatTime(countdown)}
             </span>
           </p>
         ) : (
-          <p className="text-sm text-destructive font-medium">Code expired — request a new one</p>
+          <p className="text-sm text-destructive font-medium">
+            Code expired — request a new one
+          </p>
         )}
       </div>
 
-      {/* Resend */}
       <div className="text-sm text-muted-foreground">
         {canResend ? (
           <button
@@ -225,12 +242,13 @@ export function OtpInput({
         ) : (
           <span>
             Resend available in{" "}
-            <span className="font-mono text-foreground">{formatTime(resendCooldown)}</span>
+            <span className="font-mono text-foreground">
+              {formatTime(resendCooldown)}
+            </span>
           </span>
         )}
       </div>
 
-      {/* Back */}
       <button
         type="button"
         onClick={onBack}
