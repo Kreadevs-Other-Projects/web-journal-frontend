@@ -35,11 +35,15 @@ export default function PaperApprovalPage() {
   const [data, setData] = useState<ApprovalData | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
-  const [selectedAction, setSelectedAction] = useState<"approve" | "reject" | null>(null);
+  const [selectedAction, setSelectedAction] = useState<
+    "approve" | "reject" | null
+  >(null);
   const [rejectReason, setRejectReason] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [finalAction, setFinalAction] = useState<"approve" | "reject" | null>(null);
+  const [finalAction, setFinalAction] = useState<"approve" | "reject" | null>(
+    null,
+  );
   const [paperHtml, setPaperHtml] = useState<string | null>(null);
   const [htmlLoading, setHtmlLoading] = useState(false);
 
@@ -47,9 +51,15 @@ export default function PaperApprovalPage() {
     const fetchData = async () => {
       try {
         const r = await fetch(`${url}/paper-approval/${token}`);
-        if (!r.ok) { setNotFound(true); return; }
+        if (!r.ok) {
+          setNotFound(true);
+          return;
+        }
         const json = await r.json();
-        if (!json.success) { setNotFound(true); return; }
+        if (!json.success) {
+          setNotFound(true);
+          return;
+        }
         setData(json);
       } catch {
         setNotFound(true);
@@ -63,7 +73,9 @@ export default function PaperApprovalPage() {
   useEffect(() => {
     if (!data?.paper?.id || !data?.paper?.current_version_id) return;
     setHtmlLoading(true);
-    fetch(`${url}/papers/${data.paper.id}/version/${data.paper.current_version_id}/html`)
+    fetch(
+      `${url}/papers/${data.paper.id}/version/${data.paper.current_version_id}/html`,
+    )
       .then((r) => r.json())
       .then((d) => {
         if (d.html) setPaperHtml(d.html);
@@ -106,8 +118,12 @@ export default function PaperApprovalPage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
         <div className="text-center py-20 max-w-md">
           <XCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Link Expired or Invalid</h1>
-          <p className="text-gray-500">This approval link has expired or already been used.</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            Link Expired or Invalid
+          </h1>
+          <p className="text-gray-600">
+            This approval link has expired or already been used.
+          </p>
         </div>
       </div>
     );
@@ -118,8 +134,12 @@ export default function PaperApprovalPage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
         <div className="text-center py-20 max-w-md">
           <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Already Responded</h1>
-          <p className="text-gray-500">You have already {data.status} this paper submission.</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            Already Responded
+          </h1>
+          <p className="text-gray-600">
+            You have already {data.status} this paper submission.
+          </p>
         </div>
       </div>
     );
@@ -130,7 +150,9 @@ export default function PaperApprovalPage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
         <div className="text-center py-20 max-w-md">
           <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-3" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Thank you!</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            Thank you!
+          </h2>
           <p className="text-gray-600">
             {finalAction === "approve"
               ? "The paper has been approved and submitted for editorial review."
@@ -145,36 +167,51 @@ export default function PaperApprovalPage() {
     <div className="min-h-screen bg-gray-50 py-10 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Corresponding Author Approval</h1>
-          <p className="text-gray-500 mt-2">
-            Please review the paper details below and approve or reject this submission.
+          <h1 className="text-2xl font-bold text-gray-900">
+            Corresponding Author Approval
+          </h1>
+          <p className="text-gray-600 mt-2">
+            Please review the paper details below and approve or reject this
+            submission.
           </p>
         </div>
 
         {/* Paper details */}
         <div className="border border-gray-200 rounded-lg p-6 mb-6 bg-white shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900">{data.paper.title}</h2>
-          <p className="text-gray-500 text-sm mt-1">
+          <h2 className="text-lg font-semibold text-gray-900">
+            {data.paper.title}
+          </h2>
+          <p className="text-gray-600 text-sm mt-1">
             {data.paper.journal_name} · Submitted by {data.paper.submitted_by}
           </p>
           <div className="mt-4">
-            <p className="text-xs font-semibold uppercase text-gray-400 mb-1">Abstract</p>
-            <p className="text-sm text-gray-700 leading-relaxed">{data.paper.abstract || "No abstract provided."}</p>
+            <p className="text-xs font-semibold uppercase text-gray-500 mb-1">
+              Abstract
+            </p>
+            <p className="text-sm text-gray-800 leading-relaxed">
+              {data.paper.abstract || "No abstract provided."}
+            </p>
           </div>
           {data.paper.authors?.length > 0 && (
             <div className="mt-4">
-              <p className="text-xs font-semibold uppercase text-gray-400 mb-1">Authors</p>
-              <p className="text-sm text-gray-700">{data.paper.authors.map((a) => a.name).join(", ")}</p>
+              <p className="text-xs font-semibold uppercase text-gray-500 mb-1">
+                Authors
+              </p>
+              <p className="text-sm text-gray-800">
+                {data.paper.authors.map((a) => a.name).join(", ")}
+              </p>
             </div>
           )}
         </div>
 
         {/* Full Article Web View */}
         {paperHtml && (
-          <div className="mt-6">
+          <div className="mt-6 text-black">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold text-lg text-gray-900">Full Manuscript</h3>
-              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+              <h3 className="font-semibold text-lg text-gray-900">
+                Full Manuscript
+              </h3>
+              <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">
                 Web View
               </span>
             </div>
@@ -184,18 +221,22 @@ export default function PaperApprovalPage() {
                   {data.paper.title}
                 </h1>
                 {data.paper.author_details?.length > 0 && (
-                  <p className="text-center text-sm text-gray-600 mb-1">
+                  <p className="text-center text-sm text-gray-700 mb-1">
                     {data.paper.author_details.map((a) => a.name).join(", ")}
                   </p>
                 )}
-                <p className="text-center text-xs text-gray-400 mb-6">
+                <p className="text-center text-xs text-gray-500 mb-6">
                   {data.paper.journal_name}
-                  {data.paper.submitted_at ? ` · Submitted ${formatDate(data.paper.submitted_at)}` : ""}
+                  {data.paper.submitted_at
+                    ? ` · Submitted ${formatDate(data.paper.submitted_at)}`
+                    : ""}
                 </p>
                 <hr className="mb-6" />
                 <div
-                  className="paper-webview-content"
-                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(paperHtml) }}
+                  className="paper-webview-content prose prose-sm max-w-none"
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(paperHtml),
+                  }}
                 />
               </div>
             </div>
@@ -205,7 +246,7 @@ export default function PaperApprovalPage() {
         {htmlLoading && (
           <div className="mt-6 border border-gray-200 rounded-xl p-10 text-center bg-white shadow-sm">
             <div className="animate-spin h-8 w-8 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-3" />
-            <p className="text-sm text-gray-500">Loading full manuscript...</p>
+            <p className="text-sm text-gray-600">Loading full manuscript...</p>
           </div>
         )}
 
@@ -220,7 +261,7 @@ export default function PaperApprovalPage() {
               placeholder="Please provide a reason for rejection..."
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg p-3 text-sm mb-4 min-h-[100px] focus:outline-none focus:ring-2 focus:ring-red-400"
+              className="w-full border border-gray-300 rounded-lg p-3 text-sm text-gray-900 placeholder-gray-400 mb-4 min-h-[100px] focus:outline-none focus:ring-2 focus:ring-red-400"
               required
             />
           )}
