@@ -2,18 +2,32 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { CheckCircle, XCircle } from "lucide-react";
 import { url } from "@/url";
+import DOMPurify from "dompurify";
 
 interface ApprovalData {
   token_valid: boolean;
   status: string;
   paper: {
+    id: string;
     title: string;
     abstract: string;
     journal_name: string;
     submitted_by: string;
+    submitted_at: string | null;
+    current_version_id: string | null;
     authors: Array<{ name: string; affiliation?: string }>;
+    author_details: Array<{ name: string; affiliation?: string }>;
   };
   corr_author: { name: string; email: string };
+}
+
+function formatDate(dateStr: string | null | undefined) {
+  if (!dateStr) return "";
+  return new Date(dateStr).toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 export default function PaperApprovalPage() {
@@ -26,6 +40,8 @@ export default function PaperApprovalPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [finalAction, setFinalAction] = useState<"approve" | "reject" | null>(null);
+  const [paperHtml, setPaperHtml] = useState<string | null>(null);
+  const [htmlLoading, setHtmlLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -43,6 +59,18 @@ export default function PaperApprovalPage() {
     };
     fetchData();
   }, [token]);
+
+  useEffect(() => {
+    if (!data?.paper?.id || !data?.paper?.current_version_id) return;
+    setHtmlLoading(true);
+    fetch(`${url}/papers/${data.paper.id}/version/${data.paper.current_version_id}/html`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.html) setPaperHtml(d.html);
+      })
+      .catch(() => {})
+      .finally(() => setHtmlLoading(false));
+  }, [data?.paper?.id, data?.paper?.current_version_id]);
 
   const handleAction = async (action: "approve" | "reject") => {
     if (action === "reject" && !rejectReason.trim()) return;
@@ -115,7 +143,7 @@ export default function PaperApprovalPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-gray-900">Corresponding Author Approval</h1>
           <p className="text-gray-500 mt-2">
@@ -140,6 +168,46 @@ export default function PaperApprovalPage() {
             </div>
           )}
         </div>
+
+        {/* Full Article Web View */}
+        {paperHtml && (
+          <div className="mt-6">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-semibold text-lg text-gray-900">Full Manuscript</h3>
+              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                Web View
+              </span>
+            </div>
+            <div className="border border-gray-200 rounded-xl bg-white overflow-hidden shadow-sm">
+              <div className="max-w-[750px] mx-auto px-10 py-10">
+                <h1 className="text-2xl font-bold text-gray-900 mb-2 text-center leading-tight">
+                  {data.paper.title}
+                </h1>
+                {data.paper.author_details?.length > 0 && (
+                  <p className="text-center text-sm text-gray-600 mb-1">
+                    {data.paper.author_details.map((a) => a.name).join(", ")}
+                  </p>
+                )}
+                <p className="text-center text-xs text-gray-400 mb-6">
+                  {data.paper.journal_name}
+                  {data.paper.submitted_at ? ` · Submitted ${formatDate(data.paper.submitted_at)}` : ""}
+                </p>
+                <hr className="mb-6" />
+                <div
+                  className="paper-webview-content"
+                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(paperHtml) }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {htmlLoading && (
+          <div className="mt-6 border border-gray-200 rounded-xl p-10 text-center bg-white shadow-sm">
+            <div className="animate-spin h-8 w-8 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-3" />
+            <p className="text-sm text-gray-500">Loading full manuscript...</p>
+          </div>
+        )}
 
         {/* Action section */}
         <div className="border border-gray-200 rounded-lg p-6 bg-white shadow-sm">

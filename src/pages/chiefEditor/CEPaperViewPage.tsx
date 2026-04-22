@@ -39,6 +39,7 @@ import {
   Clock,
   XCircle,
   Lock,
+  MessageSquare,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { url } from "@/url";
@@ -1102,21 +1103,26 @@ export default function CEPaperViewPage() {
                             {r.decision}
                           </Badge>
                           {r.comments && (
-                            <p className="text-xs text-muted-foreground leading-relaxed">
-                              {r.comments}
-                            </p>
+                            <div className="bg-muted/40 rounded p-2 mt-1">
+                              <p className="text-[10px] font-semibold text-muted-foreground mb-0.5 flex items-center gap-1">
+                                <MessageSquare className="h-2.5 w-2.5" />
+                                Comments for Authors
+                              </p>
+                              <p className="text-xs leading-relaxed whitespace-pre-wrap">
+                                {r.comments}
+                              </p>
+                            </div>
                           )}
-                          {/* {r.confidential_comments && (
+                          {r.confidential_comments && (
                             <div className="bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800/40 rounded p-2 mt-1">
                               <p className="text-[10px] font-semibold text-purple-700 dark:text-purple-300 mb-0.5 flex items-center gap-1">
-                                <Lock className="h-2.5 w-2.5" /> Confidential
-                                (editors only)
+                                <Lock className="h-2.5 w-2.5" /> Confidential — Editors Only
                               </p>
-                              <p className="text-xs text-purple-900 dark:text-purple-100">
+                              <p className="text-xs text-purple-900 dark:text-purple-100 leading-relaxed whitespace-pre-wrap">
                                 {r.confidential_comments}
                               </p>
                             </div>
-                          )} */}
+                          )}
                           {r.decided_at && (
                             <p className="text-[10px] text-muted-foreground">
                               {formatDate(r.decided_at)}
