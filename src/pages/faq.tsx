@@ -26,7 +26,6 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import Navbar from "@/components/navbar";
 
 export default function FAQPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -198,7 +197,6 @@ export default function FAQPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background/95 to-background">
-      <Navbar />
       <section className="relative overflow-hidden pt-32 pb-20 lg:pt-40 lg:pb-28">
         <div className="absolute inset-0 bg-grid-primary/5 [mask-image:radial-gradient(ellipse_at_center,white,transparent)]" />
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5" />

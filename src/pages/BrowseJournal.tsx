@@ -30,7 +30,6 @@ import {
 } from "@/components/AnimationWrappers";
 import { cn, getFileUrl } from "@/lib/utils";
 import { url } from "@/url";
-import Navbar from "@/components/navbar";
 
 interface Paper {
   id: string;
@@ -84,7 +83,12 @@ function JournalLogo({
 
   if (logoUrl) {
     return (
-      <div className={cn("aspect-[3/4] overflow-hidden rounded-lg bg-muted shrink-0", className)}>
+      <div
+        className={cn(
+          "aspect-[3/4] overflow-hidden rounded-lg bg-muted shrink-0",
+          className,
+        )}
+      >
         <img
           src={getFileUrl(logoUrl)}
           alt={title}
@@ -126,7 +130,9 @@ export default function BrowsePage() {
   const [journals, setJournals] = useState<Journal[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
-  const [journalCategoryChips, setJournalCategoryChips] = useState<{ id: string; name: string }[]>([]);
+  const [journalCategoryChips, setJournalCategoryChips] = useState<
+    { id: string; name: string }[]
+  >([]);
 
   useEffect(() => {
     const fetchBrowse = async () => {
@@ -145,7 +151,9 @@ export default function BrowsePage() {
     fetchBrowse();
     fetch(`${url}/journal-categories`)
       .then((r) => r.json())
-      .then((d) => { if (d.success) setJournalCategoryChips(d.categories || []); })
+      .then((d) => {
+        if (d.success) setJournalCategoryChips(d.categories || []);
+      })
       .catch(() => {});
   }, []);
 
@@ -183,7 +191,8 @@ export default function BrowsePage() {
         new Date(journal.published_at).getFullYear().toString() ===
           selectedYear;
       const matchesCategory =
-        !selectedCategoryId || journal.journal_category_id === selectedCategoryId;
+        !selectedCategoryId ||
+        journal.journal_category_id === selectedCategoryId;
       return matchesJournal && matchesYear && matchesCategory;
     })
     .map((journal) => ({
@@ -221,8 +230,6 @@ export default function BrowsePage() {
 
   return (
     <PageTransition className="min-h-screen bg-background">
-      <Navbar />
-
       <section className="pt-24 pb-8 border-b border-border/50">
         <div className="container mx-auto px-4">
           <motion.div
@@ -294,7 +301,11 @@ export default function BrowsePage() {
                 {journalCategoryChips.map((cat) => (
                   <button
                     key={cat.id}
-                    onClick={() => setSelectedCategoryId((prev) => prev === cat.id ? "" : cat.id)}
+                    onClick={() =>
+                      setSelectedCategoryId((prev) =>
+                        prev === cat.id ? "" : cat.id,
+                      )
+                    }
                     className={`px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors border ${
                       selectedCategoryId === cat.id
                         ? "bg-primary text-primary-foreground border-primary"

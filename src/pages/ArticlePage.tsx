@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import DOMPurify from "dompurify";
-import Navbar from "@/components/navbar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -187,7 +186,6 @@ export default function ArticlePage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar />
         <div className="flex items-center justify-center h-96">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
         </div>
@@ -198,7 +196,6 @@ export default function ArticlePage() {
   if (!article) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar />
         <div className="flex flex-col items-center justify-center h-96 gap-4">
           <p className="text-muted-foreground text-lg">Article not found.</p>
           <Button asChild variant="outline">
@@ -252,8 +249,6 @@ export default function ArticlePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
-
       <main className="pt-24 pb-16">
         <div className="container mx-auto px-4 max-w-4xl">
           <motion.div

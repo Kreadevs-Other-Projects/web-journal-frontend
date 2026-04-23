@@ -31,6 +31,7 @@ import {
   Upload,
   X,
   Plus,
+  Lock,
 } from "lucide-react";
 import RichTextEditor from "@/components/RichTextEditor";
 import { FieldHint } from "@/components/FieldHint";
@@ -62,6 +63,41 @@ interface StaffFields {
   email: string;
 }
 
+const STOP_WORDS = new Set(["of", "the", "and", "in", "for", "on", "at", "to", "a", "an", "by", "with", "de", "journal"]);
+
+function previewAcronym(title: string): string {
+  if (!title.trim()) return "";
+  const words = title
+    .split(/\s+/)
+    .map((w) => w.replace(/[^a-zA-Z]/g, ""))
+    .filter((w) => w.length > 0 && !STOP_WORDS.has(w.toLowerCase()));
+
+  let acronym = "";
+  if (words.length >= 4) {
+    acronym = words.slice(0, 4).map((w) => w[0].toUpperCase()).join("");
+  } else if (words.length === 3) {
+    acronym = words.map((w) => w[0].toUpperCase()).join("");
+    const longest = words.reduce((a, b) => a.length >= b.length ? a : b);
+    acronym += (longest[1] ?? longest[0]).toUpperCase();
+  } else if (words.length === 2) {
+    acronym = words.map((w) => w.slice(0, 2).toUpperCase()).join("");
+  } else if (words.length === 1) {
+    acronym = words[0].slice(0, 4).toUpperCase();
+  } else {
+    const clean = title.replace(/\s/g, "").replace(/[^a-zA-Z]/g, "");
+    acronym = clean.slice(0, 4).toUpperCase();
+  }
+  if (acronym.length > 4) acronym = acronym.slice(0, 4);
+  if (acronym.length < 4) {
+    const firstWord = words[0] ?? title.replace(/\s/g, "");
+    while (acronym.length < 4) {
+      const nextChar = firstWord[acronym.length] ?? firstWord[firstWord.length - 1];
+      acronym += nextChar.toUpperCase();
+    }
+  }
+  return acronym;
+}
+
 const defaultJournal: JournalFields = {
   title: "",
   issn: "",
@@ -87,7 +123,10 @@ export default function CreateJournal() {
   const navigate = useNavigate();
 
   const [step, setStep] = useState(0);
-  const [journal, setJournal] = useState<JournalFields>(defaultJournal);
+  const [journal, setJournal] = useState<JournalFields>({
+    ...defaultJournal,
+    publisher_name: (user as any)?.organization_name || user?.username || "",
+  });
   const [chiefEditor, setChiefEditor] = useState<StaffFields>(defaultStaff);
   const [journalManager, setJournalManager] =
     useState<StaffFields>(defaultStaff);
@@ -183,7 +222,6 @@ export default function CreateJournal() {
     if (step === 0) {
       if (
         !journal.title ||
-        !journal.publisher_name ||
         !journal.type ||
         !journal.peer_review_policy ||
         !journal.oa_policy ||
@@ -408,29 +446,26 @@ export default function CreateJournal() {
                   {!fieldErrors["title"] && (
                     <FieldHint text="The official full name of your journal as it should appear in publications." />
                   )}
-                </div>
-                <div className="space-y-1">
-                  <Label>
-                    Publisher Name <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    value={journal.publisher_name}
-                    onChange={(e) =>
-                      updateJournal("publisher_name", e.target.value)
-                    }
-                    placeholder="e.g. GIKI Press"
-                    className={
-                      fieldErrors["publisher_name"] ? "border-destructive" : ""
-                    }
-                  />
-                  {fieldErrors["publisher_name"] && (
-                    <p className="text-xs text-destructive mt-1">
-                      {fieldErrors["publisher_name"]}
+                  {journal.title && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Acronym preview:{" "}
+                      <span className="font-mono font-semibold text-foreground">
+                        {previewAcronym(journal.title)}
+                      </span>
                     </p>
                   )}
-                  {!fieldErrors["publisher_name"] && (
-                    <FieldHint text="The name of the organization or institution publishing this journal." />
-                  )}
+                </div>
+                <div className="space-y-1">
+                  <Label>Publisher Name</Label>
+                  <input
+                    value={journal.publisher_name}
+                    disabled
+                    className="flex h-10 w-full rounded-md border border-input bg-muted px-3 py-2 text-sm cursor-not-allowed opacity-70"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                    <Lock className="h-3 w-3" />
+                    Set from your account profile
+                  </p>
                 </div>
                 <div className="space-y-1">
                   <Label>ISSN</Label>

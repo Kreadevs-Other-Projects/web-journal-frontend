@@ -629,9 +629,11 @@ export default function ReviewerDashboard() {
                         variant="ghost"
                         size="sm"
                         onClick={() => {
+                          const fileUrl = selectedVersion?.file_url || selectedPaper.file_url || "";
+                          const ext = fileUrl.split(".").pop()?.split("?")[0]?.toLowerCase() || "";
                           const link = document.createElement("a");
-                          link.href = getFileUrl(selectedVersion?.file_url || selectedPaper.file_url);
-                          link.download = `${selectedPaper.title}.pdf`;
+                          link.href = getFileUrl(fileUrl);
+                          link.download = ext ? `${selectedPaper.title}.${ext}` : selectedPaper.title;
                           document.body.appendChild(link);
                           link.click();
                           document.body.removeChild(link);

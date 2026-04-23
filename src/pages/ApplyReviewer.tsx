@@ -1,8 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import Navbar from "@/components/navbar";
 import { url } from "@/url";
 import {
   UserCheck,
@@ -17,8 +15,12 @@ export default function ApplyReviewerPage() {
   const [searchParams] = useSearchParams();
   const journalId = searchParams.get("journalId") || "";
   const journalAcronym = searchParams.get("journal") || "";
-  const appliedRole = searchParams.get("role") === "associate_editor" ? "associate_editor" : "reviewer";
-  const roleLabel = appliedRole === "associate_editor" ? "Associate Editor" : "Reviewer";
+  const appliedRole =
+    searchParams.get("role") === "associate_editor"
+      ? "associate_editor"
+      : "reviewer";
+  const roleLabel =
+    appliedRole === "associate_editor" ? "Associate Editor" : "Reviewer";
 
   const [journalName, setJournalName] = useState<string>("");
   const [journalLoading, setJournalLoading] = useState(true);
@@ -33,7 +35,9 @@ export default function ApplyReviewerPage() {
   const [keywords, setKeywords] = useState<string[]>([]);
   const [keywordInput, setKeywordInput] = useState("");
   const [profilePic, setProfilePic] = useState<File | null>(null);
-  const [profilePicPreview, setProfilePicPreview] = useState<string | null>(null);
+  const [profilePicPreview, setProfilePicPreview] = useState<string | null>(
+    null,
+  );
   const profilePicRef = useRef<HTMLInputElement>(null);
 
   const [submitting, setSubmitting] = useState(false);
@@ -43,11 +47,15 @@ export default function ApplyReviewerPage() {
 
   // Fetch journal name
   useEffect(() => {
-    if (!journalId) { setJournalLoading(false); return; }
+    if (!journalId) {
+      setJournalLoading(false);
+      return;
+    }
     fetch(`${url}/journal/getJournal/${journalId}`)
       .then((r) => r.json())
       .then((d) => {
-        if (d.success && d.journal) setJournalName(d.journal.title || d.journal.journal_title || "");
+        if (d.success && d.journal)
+          setJournalName(d.journal.title || d.journal.journal_title || "");
       })
       .catch(() => {})
       .finally(() => setJournalLoading(false));
@@ -57,7 +65,8 @@ export default function ApplyReviewerPage() {
   const addDegree = () => {
     if (degrees.length < 5) setDegrees([...degrees, ""]);
   };
-  const removeDegree = (i: number) => setDegrees(degrees.filter((_, idx) => idx !== i));
+  const removeDegree = (i: number) =>
+    setDegrees(degrees.filter((_, idx) => idx !== i));
   const updateDegree = (i: number, val: string) =>
     setDegrees(degrees.map((d, idx) => (idx === i ? val : d)));
 
@@ -68,7 +77,8 @@ export default function ApplyReviewerPage() {
     setKeywords([...keywords, trimmed]);
     setKeywordInput("");
   };
-  const removeKeyword = (kw: string) => setKeywords(keywords.filter((k) => k !== kw));
+  const removeKeyword = (kw: string) =>
+    setKeywords(keywords.filter((k) => k !== kw));
   const handleKeywordKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" || e.key === ",") {
       e.preventDefault();
@@ -91,9 +101,11 @@ export default function ApplyReviewerPage() {
     const errs: Record<string, string> = {};
     if (!name.trim()) errs.name = "Full name is required";
     if (!email.trim()) errs.email = "Email address is required";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errs.email = "Invalid email address";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+      errs.email = "Invalid email address";
     if (!journalId) errs.journal = "Journal ID is missing from URL";
-    if (statement.length > 500) errs.statement = "Statement must be 500 characters or less";
+    if (statement.length > 500)
+      errs.statement = "Statement must be 500 characters or less";
     return errs;
   };
 
@@ -101,7 +113,10 @@ export default function ApplyReviewerPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errs = validate();
-    if (Object.keys(errs).length) { setErrors(errs); return; }
+    if (Object.keys(errs).length) {
+      setErrors(errs);
+      return;
+    }
     setErrors({});
     setSubmitting(true);
 
@@ -110,10 +125,14 @@ export default function ApplyReviewerPage() {
       formData.append("journalId", journalId);
       formData.append("name", name.trim());
       formData.append("email", email.trim());
-      if (affiliation.trim()) formData.append("affiliation", affiliation.trim());
+      if (affiliation.trim())
+        formData.append("affiliation", affiliation.trim());
       if (orcid.trim()) formData.append("orcid", orcid.trim());
       if (statement.trim()) formData.append("statement", statement.trim());
-      formData.append("degrees", JSON.stringify(degrees.filter((d) => d.trim())));
+      formData.append(
+        "degrees",
+        JSON.stringify(degrees.filter((d) => d.trim())),
+      );
       formData.append("keywords", JSON.stringify(keywords));
       if (profilePic) formData.append("profile_pic", profilePic);
       formData.append("applied_role", appliedRole);
@@ -123,12 +142,15 @@ export default function ApplyReviewerPage() {
         body: formData,
       });
       const data = await res.json();
-      if (!res.ok || !data.success) throw new Error(data.message || "Submission failed");
+      if (!res.ok || !data.success)
+        throw new Error(data.message || "Submission failed");
 
       setSubmittedEmail(email.trim());
       setSubmitted(true);
     } catch (err: any) {
-      setErrors({ form: err.message || "Something went wrong. Please try again." });
+      setErrors({
+        form: err.message || "Something went wrong. Please try again.",
+      });
     } finally {
       setSubmitting(false);
     }
@@ -137,15 +159,16 @@ export default function ApplyReviewerPage() {
   if (submitted) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar />
         <div className="container mx-auto px-4 max-w-lg pt-28 pb-20 text-center">
           <div className="flex flex-col items-center gap-6">
             <CheckCircle2 className="h-16 w-16 text-green-500" />
-            <h1 className="text-2xl font-bold text-foreground">Application Submitted Successfully</h1>
+            <h1 className="text-2xl font-bold text-foreground">
+              Application Submitted Successfully
+            </h1>
             <p className="text-muted-foreground leading-relaxed">
               Your application has been sent to the editorial team of{" "}
-              <strong>{journalName || "the journal"}</strong>. You will receive a
-              confirmation at <strong>{submittedEmail}</strong>.
+              <strong>{journalName || "the journal"}</strong>. You will receive
+              a confirmation at <strong>{submittedEmail}</strong>.
             </p>
             <Link to="/browse">
               <Button variant="outline">
@@ -160,15 +183,18 @@ export default function ApplyReviewerPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
       <div className="container mx-auto px-4 max-w-2xl pt-24 pb-20">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-2">
             <UserCheck className="h-5 w-5 text-primary" />
-            <span className="text-sm text-primary font-medium uppercase tracking-wide">{roleLabel} Application</span>
+            <span className="text-sm text-primary font-medium uppercase tracking-wide">
+              {roleLabel} Application
+            </span>
           </div>
-          <h1 className="text-3xl font-bold text-foreground">Apply as {roleLabel}</h1>
+          <h1 className="text-3xl font-bold text-foreground">
+            Apply as {roleLabel}
+          </h1>
           {(journalName || journalLoading) && (
             <p className="text-muted-foreground mt-1">
               Journal:{" "}
@@ -203,7 +229,9 @@ export default function ApplyReviewerPage() {
               placeholder="Dr. Jane Smith"
               className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
             />
-            {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
+            {errors.name && (
+              <p className="text-xs text-destructive">{errors.name}</p>
+            )}
           </div>
 
           {/* Email */}
@@ -218,23 +246,36 @@ export default function ApplyReviewerPage() {
               placeholder="jane.smith@university.edu"
               className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
             />
-            {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+            {errors.email && (
+              <p className="text-xs text-destructive">{errors.email}</p>
+            )}
           </div>
 
           {/* Profile Picture */}
           <div className="space-y-1">
-            <label className="text-sm font-medium text-foreground">Profile Picture <span className="text-muted-foreground font-normal">(optional)</span></label>
+            <label className="text-sm font-medium text-foreground">
+              Profile Picture{" "}
+              <span className="text-muted-foreground font-normal">
+                (optional)
+              </span>
+            </label>
             <div className="flex items-start gap-4">
               <div
                 className="w-[72px] h-[96px] rounded-lg border-2 border-dashed border-border flex items-center justify-center cursor-pointer hover:border-primary/60 transition-colors overflow-hidden shrink-0 bg-muted"
                 onClick={() => profilePicRef.current?.click()}
               >
                 {profilePicPreview ? (
-                  <img src={profilePicPreview} alt="Preview" className="w-full h-full object-cover object-top" />
+                  <img
+                    src={profilePicPreview}
+                    alt="Preview"
+                    className="w-full h-full object-cover object-top"
+                  />
                 ) : (
                   <div className="text-center">
                     <Upload className="h-5 w-5 text-muted-foreground mx-auto mb-1" />
-                    <span className="text-[10px] text-muted-foreground">Upload</span>
+                    <span className="text-[10px] text-muted-foreground">
+                      Upload
+                    </span>
                   </div>
                 )}
               </div>
@@ -244,20 +285,32 @@ export default function ApplyReviewerPage() {
                   <button
                     type="button"
                     className="text-destructive flex items-center gap-1 mt-2"
-                    onClick={() => { setProfilePic(null); setProfilePicPreview(null); if (profilePicRef.current) profilePicRef.current.value = ""; }}
+                    onClick={() => {
+                      setProfilePic(null);
+                      setProfilePicPreview(null);
+                      if (profilePicRef.current)
+                        profilePicRef.current.value = "";
+                    }}
                   >
                     <X className="h-3 w-3" /> Remove
                   </button>
                 )}
               </div>
             </div>
-            <input ref={profilePicRef} type="file" className="hidden" accept=".jpg,.jpeg,.png,.webp" onChange={handleProfilePicChange} />
+            <input
+              ref={profilePicRef}
+              type="file"
+              className="hidden"
+              accept=".jpg,.jpeg,.png,.webp"
+              onChange={handleProfilePicChange}
+            />
           </div>
 
           {/* Degrees */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">
-              Degrees <span className="text-muted-foreground font-normal">(max 5)</span>
+              Degrees{" "}
+              <span className="text-muted-foreground font-normal">(max 5)</span>
             </label>
             <div className="space-y-2">
               {degrees.map((deg, i) => (
@@ -270,7 +323,11 @@ export default function ApplyReviewerPage() {
                     className="flex-1 px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
                   />
                   {degrees.length > 1 && (
-                    <button type="button" onClick={() => removeDegree(i)} className="text-muted-foreground hover:text-destructive transition-colors">
+                    <button
+                      type="button"
+                      onClick={() => removeDegree(i)}
+                      className="text-muted-foreground hover:text-destructive transition-colors"
+                    >
                       <X className="h-4 w-4" />
                     </button>
                   )}
@@ -278,7 +335,11 @@ export default function ApplyReviewerPage() {
               ))}
             </div>
             {degrees.length < 5 && (
-              <button type="button" onClick={addDegree} className="flex items-center gap-1.5 text-sm text-primary hover:text-primary/80 transition-colors">
+              <button
+                type="button"
+                onClick={addDegree}
+                className="flex items-center gap-1.5 text-sm text-primary hover:text-primary/80 transition-colors"
+              >
                 <Plus className="h-4 w-4" /> Add Degree
               </button>
             )}
@@ -287,13 +348,21 @@ export default function ApplyReviewerPage() {
           {/* Keywords / Areas of Expertise */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">
-              Areas of Expertise <span className="text-muted-foreground font-normal">(max 5)</span>
+              Areas of Expertise{" "}
+              <span className="text-muted-foreground font-normal">(max 5)</span>
             </label>
             <div className="flex flex-wrap gap-1.5 mb-2">
               {keywords.map((kw) => (
-                <span key={kw} className="inline-flex items-center gap-1 bg-primary/10 text-primary border border-primary/20 rounded-full px-3 py-0.5 text-sm">
+                <span
+                  key={kw}
+                  className="inline-flex items-center gap-1 bg-primary/10 text-primary border border-primary/20 rounded-full px-3 py-0.5 text-sm"
+                >
                   {kw}
-                  <button type="button" onClick={() => removeKeyword(kw)} className="hover:text-destructive transition-colors">
+                  <button
+                    type="button"
+                    onClick={() => removeKeyword(kw)}
+                    className="hover:text-destructive transition-colors"
+                  >
                     <X className="h-3 w-3" />
                   </button>
                 </span>
@@ -320,14 +389,19 @@ export default function ApplyReviewerPage() {
               </Button>
             </div>
             {keywords.length >= 5 && (
-              <p className="text-xs text-muted-foreground">Maximum 5 keywords reached.</p>
+              <p className="text-xs text-muted-foreground">
+                Maximum 5 keywords reached.
+              </p>
             )}
           </div>
 
           {/* Statement */}
           <div className="space-y-1">
             <label className="text-sm font-medium text-foreground">
-              Brief Statement <span className="text-muted-foreground font-normal">(optional, max 500 chars)</span>
+              Brief Statement{" "}
+              <span className="text-muted-foreground font-normal">
+                (optional, max 500 chars)
+              </span>
             </label>
             <textarea
               value={statement}
@@ -337,14 +411,21 @@ export default function ApplyReviewerPage() {
               maxLength={500}
               className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none resize-none"
             />
-            <p className="text-xs text-muted-foreground text-right">{statement.length}/500</p>
-            {errors.statement && <p className="text-xs text-destructive">{errors.statement}</p>}
+            <p className="text-xs text-muted-foreground text-right">
+              {statement.length}/500
+            </p>
+            {errors.statement && (
+              <p className="text-xs text-destructive">{errors.statement}</p>
+            )}
           </div>
 
           {/* Affiliation */}
           <div className="space-y-1">
             <label className="text-sm font-medium text-foreground">
-              Current Institution / Affiliation <span className="text-muted-foreground font-normal">(optional)</span>
+              Current Institution / Affiliation{" "}
+              <span className="text-muted-foreground font-normal">
+                (optional)
+              </span>
             </label>
             <input
               type="text"
@@ -358,7 +439,10 @@ export default function ApplyReviewerPage() {
           {/* ORCID */}
           <div className="space-y-1">
             <label className="text-sm font-medium text-foreground">
-              ORCID <span className="text-muted-foreground font-normal">(optional)</span>
+              ORCID{" "}
+              <span className="text-muted-foreground font-normal">
+                (optional)
+              </span>
             </label>
             <input
               type="text"
@@ -375,7 +459,12 @@ export default function ApplyReviewerPage() {
             </div>
           )}
 
-          <Button type="submit" disabled={submitting} className="w-full" size="lg">
+          <Button
+            type="submit"
+            disabled={submitting}
+            className="w-full"
+            size="lg"
+          >
             {submitting ? "Submitting..." : "Submit Application"}
           </Button>
         </form>

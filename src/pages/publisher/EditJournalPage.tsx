@@ -32,6 +32,7 @@ import {
   Lock,
 } from "lucide-react";
 import RichTextEditor from "@/components/RichTextEditor";
+import { getFileUrl } from "@/lib/utils";
 
 interface JournalData {
   id: string;
@@ -296,7 +297,7 @@ export default function EditJournalPage() {
                     />
                   ) : currentLogoUrl ? (
                     <img
-                      src={`${url}/${currentLogoUrl}`}
+                      src={getFileUrl(currentLogoUrl)}
                       alt="Current cover"
                       className="h-full w-full object-cover object-top"
                     />
@@ -353,22 +354,16 @@ export default function EditJournalPage() {
                 )}
               </div>
               <div className="space-y-1">
-                <Label>
-                  Publisher Name <span className="text-destructive">*</span>
-                </Label>
-                <Input
+                <Label>Publisher Name</Label>
+                <input
                   value={publisherName}
-                  onChange={(e) => setPublisherName(e.target.value)}
-                  placeholder="e.g. GIKI Press"
-                  className={
-                    fieldErrors["publisher_name"] ? "border-destructive" : ""
-                  }
+                  disabled
+                  className="flex h-10 w-full rounded-md border border-input bg-muted px-3 py-2 text-sm cursor-not-allowed opacity-70"
                 />
-                {fieldErrors["publisher_name"] && (
-                  <p className="text-xs text-destructive">
-                    {fieldErrors["publisher_name"]}
-                  </p>
-                )}
+                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Lock className="h-3 w-3" />
+                  Publisher name cannot be changed after creation
+                </p>
               </div>
               <div className="space-y-1">
                 <Label>ISSN</Label>

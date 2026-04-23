@@ -598,9 +598,11 @@ export default function CEPaperViewPage() {
                         size="sm"
                         className="h-7 w-7 p-0"
                         onClick={() => {
+                          const fileUrl = displayFileUrl || "";
+                          const ext = fileUrl.split(".").pop()?.split("?")[0]?.toLowerCase() || "";
                           const a = document.createElement("a");
-                          a.href = getFileUrl(displayFileUrl);
-                          a.download = displayPaper.title;
+                          a.href = getFileUrl(fileUrl);
+                          a.download = ext ? `${displayPaper.title}.${ext}` : displayPaper.title;
                           document.body.appendChild(a);
                           a.click();
                           document.body.removeChild(a);

@@ -30,7 +30,6 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { UserRole, roleConfig } from "@/lib/roles";
 import { url } from "../url";
-import Navbar from "@/components/navbar";
 import { useAuth } from "@/context/AuthContext";
 import { OtpInput } from "@/components/OtpInput";
 
@@ -117,14 +116,22 @@ export default function SignupPage() {
       const otpRes = await fetch(`${url}/auth/create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: formData.email, purpose: "signup", role: selectedRole }),
+        body: JSON.stringify({
+          email: formData.email,
+          purpose: "signup",
+          role: selectedRole,
+        }),
       });
 
       const otpResult = await otpRes.json();
 
       if (!otpRes.ok) {
         // Duplicate role — show error on the form without sending OTP
-        if (otpRes.status === 409 && otpResult.errors && Array.isArray(otpResult.errors)) {
+        if (
+          otpRes.status === 409 &&
+          otpResult.errors &&
+          Array.isArray(otpResult.errors)
+        ) {
           const map: Record<string, string> = {};
           otpResult.errors.forEach((e: { field: string; message: string }) => {
             map[e.field] = e.message;
@@ -133,7 +140,9 @@ export default function SignupPage() {
           setShowSignInLink(true);
           return;
         }
-        throw new Error(otpResult.message || "Failed to send verification code");
+        throw new Error(
+          otpResult.message || "Failed to send verification code",
+        );
       }
 
       setStep("OTP");
@@ -187,11 +196,15 @@ export default function SignupPage() {
         if (signupResult.refreshToken) {
           localStorage.setItem("refreshToken", signupResult.refreshToken);
         }
-        const addedRole: string = signupResult.user?.active_role ?? selectedRole;
-        const roleLabel = addedRole.charAt(0).toUpperCase() + addedRole.slice(1);
+        const addedRole: string =
+          signupResult.user?.active_role ?? selectedRole;
+        const roleLabel =
+          addedRole.charAt(0).toUpperCase() + addedRole.slice(1);
         toast({
           title: `${roleLabel} role added!`,
-          description: signupResult.message || `You can now access the ${roleLabel} dashboard.`,
+          description:
+            signupResult.message ||
+            `You can now access the ${roleLabel} dashboard.`,
         });
         const roleRoutes: Record<string, string> = {
           author: "/author",
@@ -206,9 +219,11 @@ export default function SignupPage() {
         if (signupResult.errors && Array.isArray(signupResult.errors)) {
           setStep("FORM");
           const map: Record<string, string> = {};
-          signupResult.errors.forEach((e: { field: string; message: string }) => {
-            map[e.field] = e.message;
-          });
+          signupResult.errors.forEach(
+            (e: { field: string; message: string }) => {
+              map[e.field] = e.message;
+            },
+          );
           setErrors(map);
           setShowSignInLink(true);
           return;
@@ -240,7 +255,10 @@ export default function SignupPage() {
       throw new Error(result.message || "Failed to resend OTP");
     }
     setOtpError("");
-    toast({ title: "Code resent", description: "Check your email for a new code" });
+    toast({
+      title: "Code resent",
+      description: "Check your email for a new code",
+    });
   };
 
   const passwordStrength = () => {
@@ -270,7 +288,6 @@ export default function SignupPage() {
 
   return (
     <>
-      <Navbar />
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4 mt-20">
         <div className="absolute inset-0 bg-grid-pattern opacity-[0.02]" />
 
@@ -296,7 +313,10 @@ export default function SignupPage() {
                   email={formData.email}
                   onComplete={handleVerifyOTP}
                   onResend={handleResendSignupOTP}
-                  onBack={() => { setStep("FORM"); setOtpError(""); }}
+                  onBack={() => {
+                    setStep("FORM");
+                    setOtpError("");
+                  }}
                   isLoading={otpLoading}
                   error={otpError}
                 />
@@ -488,38 +508,40 @@ export default function SignupPage() {
                   </Label>
 
                   <div className="grid grid-cols-3 gap-2">
-                    {(["publisher", "author", "reviewer"] as UserRole[]).map((role) => {
-                      const config = roleConfig[role];
-                      const Icon = config.icon;
-                      const isSelected = selectedRole === role;
+                    {(["publisher", "author", "reviewer"] as UserRole[]).map(
+                      (role) => {
+                        const config = roleConfig[role];
+                        const Icon = config.icon;
+                        const isSelected = selectedRole === role;
 
-                      return (
-                        <motion.button
-                          key={role}
-                          type="button"
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => handleRoleSelect(role)}
-                          className={cn(
-                            "relative p-3 rounded-xl flex flex-col items-center gap-1 transition-all duration-200 border",
-                            isSelected
-                              ? "bg-primary text-primary-foreground shadow-glow border-primary"
-                              : "bg-muted/50 text-muted-foreground hover:bg-muted border-border",
-                          )}
-                        >
-                          <Icon className="h-5 w-5" />
-                          <span className="text-[10px] font-medium uppercase tracking-wider">
-                            {config.label}
-                          </span>
-                          {isSelected && (
-                            <motion.div
-                              layoutId="roleIndicator"
-                              className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-1 w-6 rounded-full bg-primary"
-                            />
-                          )}
-                        </motion.button>
-                      );
-                    })}
+                        return (
+                          <motion.button
+                            key={role}
+                            type="button"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => handleRoleSelect(role)}
+                            className={cn(
+                              "relative p-3 rounded-xl flex flex-col items-center gap-1 transition-all duration-200 border",
+                              isSelected
+                                ? "bg-primary text-primary-foreground shadow-glow border-primary"
+                                : "bg-muted/50 text-muted-foreground hover:bg-muted border-border",
+                            )}
+                          >
+                            <Icon className="h-5 w-5" />
+                            <span className="text-[10px] font-medium uppercase tracking-wider">
+                              {config.label}
+                            </span>
+                            {isSelected && (
+                              <motion.div
+                                layoutId="roleIndicator"
+                                className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-1 w-6 rounded-full bg-primary"
+                              />
+                            )}
+                          </motion.button>
+                        );
+                      },
+                    )}
                   </div>
 
                   <div className="p-3 bg-muted/30 rounded-lg border border-border">

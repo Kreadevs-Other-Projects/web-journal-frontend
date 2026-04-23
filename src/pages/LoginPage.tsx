@@ -18,7 +18,6 @@ import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { UserRole, roleConfig } from "@/lib/roles";
 import { url } from "../url";
-import Navbar from "@/components/navbar";
 import { OtpInput } from "@/components/OtpInput";
 
 export default function LoginPage() {
@@ -144,7 +143,6 @@ export default function LoginPage() {
 
   return (
     <PageTransition className="min-h-screen bg-background relative overflow-hidden">
-      <Navbar />
       <div className="absolute inset-0 animated-gradient" />
       <div className="absolute inset-0 bg-mesh-pattern opacity-50" />
       <div className="noise-overlay" />

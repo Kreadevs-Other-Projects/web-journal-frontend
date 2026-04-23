@@ -19,7 +19,6 @@ import {
 } from "lucide-react";
 import { cn, getFileUrl, getPaperUrl } from "@/lib/utils";
 import { url } from "@/url";
-import Navbar from "./navbar";
 import DOMPurify from "dompurify";
 import { PageTransition } from "@/components/AnimationWrappers";
 
@@ -352,7 +351,6 @@ export default function JournalDetail() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar />
         <div className="flex items-center justify-center h-96">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
         </div>
@@ -363,7 +361,6 @@ export default function JournalDetail() {
   if (!journal) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar />
         <div className="flex flex-col items-center justify-center h-96 gap-4">
           <p className="text-muted-foreground text-lg">Journal not found.</p>
           <Button asChild variant="outline">
@@ -376,8 +373,6 @@ export default function JournalDetail() {
 
   return (
     <PageTransition className="min-h-screen bg-background">
-      <Navbar />
-
       {/* Journal Header */}
       <div className="border-b border-border/50 pt-20 pb-0 bg-background">
         <div className="container mx-auto px-4 max-w-6xl">

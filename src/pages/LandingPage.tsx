@@ -37,17 +37,8 @@ import {
   StaggerItem,
   FloatingElement,
 } from "@/components/AnimationWrappers";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import Navbar from "@/components/navbar";
 import { url } from "@/url";
 import { getFileUrl, getPaperUrl } from "@/lib/utils";
-import Footer from "@/components/Footer";
 
 interface SearchFilters {
   query: string;

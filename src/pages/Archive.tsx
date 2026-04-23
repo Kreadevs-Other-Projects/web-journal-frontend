@@ -1,14 +1,7 @@
 import { useEffect, useState } from "react";
 import { getPaperUrl } from "@/lib/utils";
-
 import { Link, useSearchParams } from "react-router-dom";
-
-import Navbar from "@/components/navbar";
-
 import { Button } from "@/components/ui/button";
-
-import { Badge } from "@/components/ui/badge";
-
 import {
   Select,
   SelectContent,
@@ -16,15 +9,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 import { Label } from "@/components/ui/label";
-
 import { Separator } from "@/components/ui/separator";
-
 import { BookOpen, ExternalLink, Filter, Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { url } from "@/url";
-
 import { motion } from "framer-motion";
 
 interface Paper {
@@ -221,8 +210,6 @@ export default function Archive() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
-
       <main className="pt-24 pb-16">
         <div className="container mx-auto px-4">
           <div className="mb-6">

@@ -1,4 +1,12 @@
 import { useEffect, useState, useCallback } from "react";
+
+function downloadLabel(fileUrl?: string | null): string {
+  const ext = fileUrl?.split(".").pop()?.split("?")[0]?.toLowerCase();
+  if (ext === "pdf") return "Download PDF";
+  if (ext === "docx") return "Download Word (.docx)";
+  if (ext === "tex" || ext === "latex") return "Download LaTeX (.tex)";
+  return "Download File";
+}
 import { useNavigate } from "react-router-dom";
 import DOMPurify from "dompurify";
 import { motion, AnimatePresence } from "framer-motion";
@@ -730,7 +738,7 @@ export default function SubEditorDashboard() {
               }
             >
               <Download className="h-3.5 w-3.5 mr-1.5" />
-              Download
+              {downloadLabel(selectedVersion?.file_url)}
             </Button>
           </div>
 
@@ -882,7 +890,7 @@ export default function SubEditorDashboard() {
                   }
                 >
                   <Download className="h-3.5 w-3.5 mr-1.5" />
-                  Download File
+                  {downloadLabel(selectedVersion?.file_url)}
                 </Button>
               </div>
             </div>
@@ -925,7 +933,7 @@ export default function SubEditorDashboard() {
           }
         >
           <Download className="h-4 w-4 mr-2" />
-          Download File
+          {downloadLabel(selectedVersion?.file_url)}
         </Button>
       </div>
     );
