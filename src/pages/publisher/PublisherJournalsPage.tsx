@@ -38,6 +38,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { url } from "@/url";
+import { getFileUrl } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
 interface JournalIssue {
@@ -215,7 +216,7 @@ export default function PublisherJournalsPage() {
                 <div className="relative bg-muted aspect-[3/2] flex items-center justify-center overflow-hidden">
                   {journal.logo_url ? (
                     <img
-                      src={`${url}/${journal.logo_url}`}
+                      src={getFileUrl(journal.logo_url)}
                       alt={journal.title}
                       className="w-full h-full object-cover"
                     />

@@ -36,6 +36,7 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { url } from "@/url";
+import { getFileUrl } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
 interface Reviewer {
@@ -667,7 +668,7 @@ export default function CEPapers() {
                                 : "Download file"
                             }
                             onClick={() =>
-                              window.open(`${url}${paper.file_url}`, "_blank")
+                              window.open(getFileUrl(paper.file_url), "_blank")
                             }
                           >
                             <FileDown className="h-3 w-3" />

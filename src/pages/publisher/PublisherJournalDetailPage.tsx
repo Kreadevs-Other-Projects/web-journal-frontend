@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { url } from "@/url";
+import { getFileUrl } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
 interface Issue {
@@ -252,7 +253,7 @@ export default function PublisherJournalDetailPage() {
                 <CardContent className="p-5 flex gap-4 flex-wrap">
                   {journal.logo_url && (
                     <img
-                      src={`${url}/${journal.logo_url}`}
+                      src={getFileUrl(journal.logo_url)}
                       alt={journal.title}
                       className="w-16 h-16 rounded object-cover shrink-0"
                     />

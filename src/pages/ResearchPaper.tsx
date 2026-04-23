@@ -39,6 +39,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { url } from "@/url";
+import { getFileUrl } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 
 interface PublicPaper {
@@ -370,7 +371,7 @@ export default function ResearchPaperDetail() {
                 {publicPaper.file_url && (
                   <div className="mt-3">
                     <a
-                      href={`${url}${publicPaper.file_url}`}
+                      href={getFileUrl(publicPaper.file_url)}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -812,7 +813,7 @@ export default function ResearchPaperDetail() {
                           size="sm"
                           onClick={() =>
                             window.open(
-                              `${url}${publicPaper.file_url}`,
+                              getFileUrl(publicPaper.file_url),
                               "_blank",
                             )
                           }
@@ -834,7 +835,7 @@ export default function ResearchPaperDetail() {
                       return (
                         <div className="h-[600px]">
                           <iframe
-                            src={`${url}${publicPaper!.file_url}`}
+                            src={getFileUrl(publicPaper!.file_url)}
                             className="w-full h-full border-0 rounded"
                             title="Paper PDF"
                           />
@@ -852,7 +853,7 @@ export default function ResearchPaperDetail() {
                             size="sm"
                             onClick={() =>
                               window.open(
-                                `${url}${publicPaper!.file_url}`,
+                                getFileUrl(publicPaper!.file_url),
                                 "_blank",
                               )
                             }
@@ -893,7 +894,7 @@ export default function ResearchPaperDetail() {
                             size="sm"
                             onClick={() =>
                               window.open(
-                                `${url}${publicPaper.file_url}`,
+                                getFileUrl(publicPaper.file_url),
                                 "_blank",
                               )
                             }

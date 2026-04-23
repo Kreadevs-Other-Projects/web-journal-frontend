@@ -56,6 +56,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { url } from "@/url";
+import { getFileUrl } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { PaperTimeline } from "@/components/PaperTimeline";
 
@@ -725,7 +726,7 @@ export default function SubEditorDashboard() {
               variant="ghost"
               className="h-7 text-xs shrink-0"
               onClick={() =>
-                window.open(`${url}${selectedVersion?.file_url}`, "_blank")
+                window.open(getFileUrl(selectedVersion?.file_url), "_blank")
               }
             >
               <Download className="h-3.5 w-3.5 mr-1.5" />
@@ -877,7 +878,7 @@ export default function SubEditorDashboard() {
                   size="sm"
                   variant="outline"
                   onClick={() =>
-                    window.open(`${url}${selectedVersion?.file_url}`, "_blank")
+                    window.open(getFileUrl(selectedVersion?.file_url), "_blank")
                   }
                 >
                   <Download className="h-3.5 w-3.5 mr-1.5" />
@@ -899,7 +900,7 @@ export default function SubEditorDashboard() {
       return (
         <div className="rounded-lg overflow-hidden border border-border">
           <iframe
-            src={`${url}${selectedVersion?.file_url}`}
+            src={getFileUrl(selectedVersion?.file_url)}
             className="w-full h-[600px]"
             title="Paper Preview"
           />
@@ -920,7 +921,7 @@ export default function SubEditorDashboard() {
           size="sm"
           variant="outline"
           onClick={() =>
-            window.open(`${url}${selectedVersion?.file_url}`, "_blank")
+            window.open(getFileUrl(selectedVersion?.file_url), "_blank")
           }
         >
           <Download className="h-4 w-4 mr-2" />
@@ -1036,7 +1037,7 @@ export default function SubEditorDashboard() {
                         size="sm"
                         onClick={() =>
                           window.open(
-                            `${url}${selectedVersion?.file_url}`,
+                            getFileUrl(selectedVersion?.file_url),
                             "_blank",
                           )
                         }
@@ -1223,7 +1224,7 @@ export default function SubEditorDashboard() {
                       className="w-full justify-start hover:bg-white/10"
                       onClick={() =>
                         window.open(
-                          `${url}${selectedVersion?.file_url}`,
+                          getFileUrl(selectedVersion?.file_url),
                           "_blank",
                         )
                       }

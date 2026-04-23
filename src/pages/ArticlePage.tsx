@@ -18,6 +18,7 @@ import {
   ChevronUp,
 } from "lucide-react";
 import { url } from "@/url";
+import { getFileUrl } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
 interface AuthorDetail {
@@ -413,7 +414,7 @@ export default function ArticlePage() {
                       size="sm"
                       onClick={() =>
                         window.open(
-                          `${url}${article.pdf_url || article.file_url}`,
+                          getFileUrl(article.pdf_url || article.file_url),
                           "_blank",
                         )
                       }
@@ -525,7 +526,7 @@ export default function ArticlePage() {
                   {article.file_url && (
                     <p className="text-sm text-muted-foreground pt-2 border-t border-border/40">
                       <a
-                        href={`${url}${article.file_url}`}
+                        href={getFileUrl(article.file_url)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-primary hover:underline inline-flex items-center gap-1"
@@ -549,7 +550,7 @@ export default function ArticlePage() {
                     <Button
                       size="sm"
                       onClick={() =>
-                        window.open(`${url}${article.file_url}`, "_blank")
+                        window.open(getFileUrl(article.file_url), "_blank")
                       }
                       className="gap-2"
                     >
@@ -645,7 +646,7 @@ export default function ArticlePage() {
                   size="lg"
                   onClick={() =>
                     window.open(
-                      `${url}${article.pdf_url || article.file_url}`,
+                      getFileUrl(article.pdf_url || article.file_url),
                       "_blank",
                     )
                   }
@@ -689,7 +690,7 @@ export default function ArticlePage() {
                   <div className="relative rounded-lg overflow-hidden border border-border bg-background hover:shadow-md transition">
                     {j.logo_url ? (
                       <img
-                        src={`${url}/${j.logo_url}`}
+                        src={getFileUrl(j.logo_url)}
                         alt={j.title}
                         className="w-full h-40 object-cover group-hover:scale-105 transition"
                       />

@@ -54,6 +54,7 @@ import {
 } from "@/components/ui/select";
 import { useAuth } from "@/context/AuthContext";
 import { url } from "@/url";
+import { getFileUrl } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
 interface Paper {
@@ -617,7 +618,7 @@ export default function ReviewerDashboard() {
                         size="sm"
                         onClick={() =>
                           window.open(
-                            `${url}${selectedVersion?.file_url || selectedPaper.file_url}`,
+                            getFileUrl(selectedVersion?.file_url || selectedPaper.file_url),
                             "_blank",
                           )
                         }
@@ -629,7 +630,7 @@ export default function ReviewerDashboard() {
                         size="sm"
                         onClick={() => {
                           const link = document.createElement("a");
-                          link.href = `${url}${selectedVersion?.file_url || selectedPaper.file_url}`;
+                          link.href = getFileUrl(selectedVersion?.file_url || selectedPaper.file_url);
                           link.download = `${selectedPaper.title}.pdf`;
                           document.body.appendChild(link);
                           link.click();

@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Download, Calendar, Clock, FileText } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { url } from "@/url";
+import { getFileUrl } from "@/lib/utils";
 
 export default function ReviewDetail() {
   const { user } = useAuth();
@@ -134,7 +135,7 @@ export default function ReviewDetail() {
             <Button
               variant="outline"
               className="gap-2"
-              onClick={() => window.open(`${url}${review.file_url}`, "_blank")}
+              onClick={() => window.open(getFileUrl(review.file_url), "_blank")}
             >
               <Download className="h-4 w-4" />
               Download Manuscript

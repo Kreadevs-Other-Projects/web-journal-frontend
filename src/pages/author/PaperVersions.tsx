@@ -31,6 +31,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/context/AuthContext";
 import { url } from "@/url";
+import { getFileUrl } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import {
   PageTransition,
@@ -618,7 +619,7 @@ export default function PaperVersions() {
                                 Preview
                               </Button>
                               <a
-                                href={`${url}${version.file_url}`}
+                                href={getFileUrl(version.file_url)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-1.5 text-sm text-primary hover:text-primary/80 transition-colors"
@@ -829,7 +830,7 @@ export default function PaperVersions() {
             <div className="h-[calc(95vh-180px)] border rounded-lg overflow-hidden bg-white">
               <Worker workerUrl="/pdf.worker.min.js">
                 <Viewer
-                  fileUrl={`${url}${viewPdf.file_url}`}
+                  fileUrl={getFileUrl(viewPdf.file_url)}
                   plugins={[defaultLayoutPluginInstance]}
                   theme="dark"
                 />
@@ -842,7 +843,7 @@ export default function PaperVersions() {
               </div>
               <div className="flex items-center gap-2">
                 <a
-                  href={`${url}${viewPdf.file_url}`}
+                  href={getFileUrl(viewPdf.file_url)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80"

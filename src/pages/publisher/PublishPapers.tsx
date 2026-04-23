@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { url } from "@/url";
+import { getFileUrl } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
@@ -401,7 +402,7 @@ export default function PublisherPapersDashboard() {
                             : "Download file"
                         }
                         onClick={() =>
-                          window.open(`${url}${paper.fileUrl}`, "_blank")
+                          window.open(getFileUrl(paper.fileUrl), "_blank")
                         }
                       >
                         <Download className="h-3.5 w-3.5" />
@@ -534,7 +535,7 @@ export default function PublisherPapersDashboard() {
                       size="sm"
                       className="h-7 text-xs gap-1"
                       onClick={() =>
-                        window.open(`${url}${viewPaper.fileUrl}`, "_blank")
+                        window.open(getFileUrl(viewPaper.fileUrl), "_blank")
                       }
                     >
                       <Download className="h-3 w-3" />

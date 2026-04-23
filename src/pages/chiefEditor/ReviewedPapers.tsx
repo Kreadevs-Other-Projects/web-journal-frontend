@@ -30,6 +30,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 import { url } from "@/url";
+import { getFileUrl } from "@/lib/utils";
 
 import { Worker, Viewer } from "@react-pdf-viewer/core";
 import "@react-pdf-viewer/core/lib/styles/index.css";
@@ -749,7 +750,7 @@ export default function ChiefEditorSubmittedReviews() {
                     size="sm"
                     className="bg-primary/90 backdrop-blur-sm"
                     onClick={() =>
-                      window.open(`${url}${viewPdf.fileUrl}`, "_blank")
+                      window.open(getFileUrl(viewPdf.fileUrl), "_blank")
                     }
                   >
                     <Download className="h-4 w-4 mr-2" />
@@ -762,7 +763,7 @@ export default function ChiefEditorSubmittedReviews() {
                     return (
                       <Worker workerUrl="/pdf.worker.min.js">
                         <div className="h-full">
-                          <Viewer fileUrl={`${url}${viewPdf.fileUrl}`} />
+                          <Viewer fileUrl={getFileUrl(viewPdf.fileUrl)} />
                         </div>
                       </Worker>
                     );
@@ -776,7 +777,7 @@ export default function ChiefEditorSubmittedReviews() {
                         </p>
                         <Button
                           onClick={() =>
-                            window.open(`${url}${viewPdf.fileUrl}`, "_blank")
+                            window.open(getFileUrl(viewPdf.fileUrl), "_blank")
                           }
                           className="gap-2"
                         >
@@ -811,7 +812,7 @@ export default function ChiefEditorSubmittedReviews() {
                       </p>
                       <Button
                         onClick={() =>
-                          window.open(`${url}${viewPdf.fileUrl}`, "_blank")
+                          window.open(getFileUrl(viewPdf.fileUrl), "_blank")
                         }
                         className="gap-2"
                       >

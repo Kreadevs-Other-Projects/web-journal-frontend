@@ -16,6 +16,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/context/AuthContext";
 import { url } from "@/url";
+import { getFileUrl } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import {
   FileText,
@@ -911,7 +912,7 @@ export default function RevisionPaper() {
                       size="sm"
                       className="gap-2 hover:border-blue-500/50 hover:bg-blue-500/10"
                       onClick={() =>
-                        window.open(`${url}${viewPdf.fileUrl}`, "_blank")
+                        window.open(getFileUrl(viewPdf.fileUrl), "_blank")
                       }
                     >
                       <Download className="h-4 w-4" />
@@ -924,7 +925,7 @@ export default function RevisionPaper() {
                       className="gap-2"
                       onClick={() => {
                         navigator.clipboard.writeText(
-                          `${url}${viewPdf.fileUrl}`,
+                          getFileUrl(viewPdf.fileUrl),
                         );
                         toast({
                           title: "Link copied",
@@ -958,7 +959,7 @@ export default function RevisionPaper() {
                         return (
                           <Worker workerUrl="/pdf.worker.min.js">
                             <Viewer
-                              fileUrl={`${url}${viewPdf.fileUrl}`}
+                              fileUrl={getFileUrl(viewPdf.fileUrl)}
                               theme="dark"
                             />
                           </Worker>
@@ -974,7 +975,7 @@ export default function RevisionPaper() {
                             <Button
                               onClick={() =>
                                 window.open(
-                                  `${url}${viewPdf.fileUrl}`,
+                                  getFileUrl(viewPdf.fileUrl),
                                   "_blank",
                                 )
                               }
@@ -1067,7 +1068,7 @@ export default function RevisionPaper() {
 
                     <div className="flex items-center gap-4">
                       <a
-                        href={`${url}${viewPdf.fileUrl}`}
+                        href={getFileUrl(viewPdf.fileUrl)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="hover:text-primary transition-colors flex items-center gap-1"

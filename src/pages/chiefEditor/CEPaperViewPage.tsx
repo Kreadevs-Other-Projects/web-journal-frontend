@@ -43,6 +43,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { url } from "@/url";
+import { getFileUrl } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { PaperTimeline } from "@/components/PaperTimeline";
 import DOMPurify from "dompurify";
@@ -587,7 +588,7 @@ export default function CEPaperViewPage() {
                         size="sm"
                         className="h-7 w-7 p-0"
                         onClick={() =>
-                          window.open(`${url}${displayFileUrl}`, "_blank")
+                          window.open(getFileUrl(displayFileUrl), "_blank")
                         }
                       >
                         <Maximize2 className="h-3.5 w-3.5" />
@@ -598,7 +599,7 @@ export default function CEPaperViewPage() {
                         className="h-7 w-7 p-0"
                         onClick={() => {
                           const a = document.createElement("a");
-                          a.href = `${url}${displayFileUrl}`;
+                          a.href = getFileUrl(displayFileUrl);
                           a.download = displayPaper.title;
                           document.body.appendChild(a);
                           a.click();
@@ -752,7 +753,7 @@ export default function CEPaperViewPage() {
                     }
                     return (
                       <iframe
-                        src={`${url}${displayFileUrl}#view=FitH`}
+                        src={`${getFileUrl(displayFileUrl)}#view=FitH`}
                         className="w-full h-full border-0"
                         style={{
                           transform: `scale(${pdfZoom / 100})`,
