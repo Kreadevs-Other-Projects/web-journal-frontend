@@ -485,9 +485,18 @@ export default function JournalDetail() {
                       Aims &amp; Scope
                     </h2>
                   </div>
-                  <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-                    {journal.aims_and_scope}
-                  </p>
+                  {journal.aims_and_scope.trim().startsWith("<") ? (
+                    <div
+                      className="prose prose-sm max-w-none dark:prose-invert text-muted-foreground"
+                      dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(journal.aims_and_scope),
+                      }}
+                    />
+                  ) : (
+                    <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+                      {journal.aims_and_scope}
+                    </p>
+                  )}
                 </section>
               ) : (
                 <p className="text-muted-foreground italic">
@@ -835,21 +844,7 @@ export default function JournalDetail() {
                         </span>
                       </p>
                       <p className="text-sm text-muted-foreground mt-1">
-                        per page
-                      </p>
-                    </div>
-                    <div className="glass-card p-5">
-                      <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">
-                        Estimated Cost
-                      </p>
-                      <p className="text-2xl font-bold text-foreground">
-                        {journal.publication_fee * 10}{" "}
-                        <span className="text-base font-normal text-muted-foreground">
-                          {journal.currency}
-                        </span>
-                      </p>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        based on avg. 10-page manuscript
+                        per Article
                       </p>
                     </div>
                   </div>

@@ -869,7 +869,7 @@ export default function PublisherDashboard() {
       if (!res.ok) throw new Error(data.message);
       toast({
         title: "APC Settings Saved",
-        description: `Fee set to ${fee} ${apcCurrency} per page.`,
+        description: `Fee set to ${fee} ${apcCurrency} per Article.`,
       });
       setJournals((prev) =>
         prev.map((j) =>
@@ -1519,7 +1519,7 @@ export default function PublisherDashboard() {
                       <div className="space-y-4">
                         <div>
                           <Label className="text-sm font-medium">
-                            Fee per page
+                            Fee per Article
                           </Label>
                           <div className="flex gap-2 mt-1.5">
                             <Input
@@ -2097,7 +2097,7 @@ export default function PublisherDashboard() {
             <p className="text-2xl font-bold text-foreground">
               {apcCurrency} {apcFee}{" "}
               <span className="text-base font-normal text-muted-foreground">
-                per page
+                per Article
               </span>
             </p>
           </div>

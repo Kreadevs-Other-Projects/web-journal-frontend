@@ -78,8 +78,8 @@ export default function AuthorDashboard() {
 
   const [papers, setPapers] = useState<Paper[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showAuthorHint, setShowAuthorHint] = useState(() =>
-    !localStorage.getItem("hint_dismissed_author")
+  const [showAuthorHint, setShowAuthorHint] = useState(
+    () => !localStorage.getItem("hint_dismissed_author"),
   );
   const dismissAuthorHint = () => {
     localStorage.setItem("hint_dismissed_author", "true");
@@ -99,6 +99,12 @@ export default function AuthorDashboard() {
 
   const recentSubmissions = papers.filter((p) => p.status !== "published");
   const publishedArticles = papers.filter((p) => p.status === "published");
+  const revisionCount = papers.filter(
+    (p) => p.status === "pending_revision",
+  ).length;
+  const rejectedReceiptCount = papers.filter(
+    (p) => p.payment_status === "failed",
+  ).length;
 
   return (
     <DashboardLayout
@@ -111,12 +117,18 @@ export default function AuthorDashboard() {
             <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6 flex items-start gap-3">
               <Info className="h-5 w-5 text-blue-500 shrink-0 mt-0.5" />
               <div className="flex-1">
-                <p className="text-sm font-medium text-blue-900 dark:text-blue-100">Getting Started</p>
+                <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                  Getting Started
+                </p>
                 <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
-                  Welcome! Browse our open journals and submit your research. After submission, you can track your paper's progress here.
+                  Welcome! Browse our open journals and submit your research.
+                  After submission, you can track your paper's progress here.
                 </p>
               </div>
-              <button onClick={dismissAuthorHint} className="text-blue-400 hover:text-blue-600 shrink-0">
+              <button
+                onClick={dismissAuthorHint}
+                className="text-blue-400 hover:text-blue-600 shrink-0"
+              >
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -133,6 +145,39 @@ export default function AuthorDashboard() {
             <Button onClick={() => navigate("/author/submit")}>
               <Plus className="h-4 w-4 mr-2" /> Submit Paper
             </Button>
+          </div>
+
+          <div className="flex flex-wrap gap-3 mb-6">
+            <div className="flex items-center gap-2 border rounded-lg px-4 py-2.5">
+              <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+              <span className="text-sm font-medium">
+                {papers.length} Total Paper{papers.length !== 1 ? "s" : ""}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 border rounded-lg px-4 py-2.5">
+              <BookOpen className="h-4 w-4 text-muted-foreground shrink-0" />
+              <span className="text-sm font-medium">
+                {publishedArticles.length} Published
+              </span>
+            </div>
+            {revisionCount > 0 && (
+              <div className="flex items-center gap-2 bg-orange-500/10 border border-orange-500/30 rounded-lg px-4 py-2.5">
+                <AlertTriangle className="h-4 w-4 text-orange-500 shrink-0" />
+                <span className="text-sm text-orange-600 font-medium">
+                  {revisionCount} Revision{revisionCount > 1 ? "s" : ""}{" "}
+                  Requested
+                </span>
+              </div>
+            )}
+            {rejectedReceiptCount > 0 && (
+              <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-2.5">
+                <AlertTriangle className="h-4 w-4 text-red-500 shrink-0" />
+                <span className="text-sm text-red-600 font-medium">
+                  {rejectedReceiptCount} Receipt
+                  {rejectedReceiptCount > 1 ? "s" : ""} Rejected
+                </span>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -186,11 +231,14 @@ export default function AuthorDashboard() {
                             Updated: {formatDate(paper.updated_at)}
                           </span>
                         </div>
-                        {(paper.payment_status === "pending" || paper.payment_status === "failed") && (
+                        {(paper.payment_status === "pending" ||
+                          paper.payment_status === "failed") && (
                           <div className="flex items-center justify-between bg-orange-500/10 border border-orange-500/30 rounded px-3 py-2 mt-1">
                             <span className="inline-flex items-center gap-1.5 text-xs text-orange-600 font-medium">
                               <AlertTriangle className="h-3.5 w-3.5" />
-                              {paper.payment_status === "failed" ? "Receipt rejected — re-upload required" : "Payment required to proceed"}
+                              {paper.payment_status === "failed"
+                                ? "Receipt rejected — re-upload required"
+                                : "Payment required to proceed"}
                             </span>
                             <Button
                               size="sm"

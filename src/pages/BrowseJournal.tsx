@@ -415,7 +415,7 @@ export default function BrowsePage() {
                 </span>
               )}
               {searchQuery && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-secondary/10 px-3 py-1 text-secondary">
+                <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-3 py-1 text-secondary text-white">
                   Search: {searchQuery}
                   <button onClick={() => setSearchQuery("")}>
                     <X className="h-3 w-3" />

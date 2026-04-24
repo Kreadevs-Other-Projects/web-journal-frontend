@@ -63,7 +63,22 @@ interface StaffFields {
   email: string;
 }
 
-const STOP_WORDS = new Set(["of", "the", "and", "in", "for", "on", "at", "to", "a", "an", "by", "with", "de", "journal"]);
+const STOP_WORDS = new Set([
+  "of",
+  "the",
+  "and",
+  "in",
+  "for",
+  "on",
+  "at",
+  "to",
+  "a",
+  "an",
+  "by",
+  "with",
+  "de",
+  "journal",
+]);
 
 function previewAcronym(title: string): string {
   if (!title.trim()) return "";
@@ -74,10 +89,13 @@ function previewAcronym(title: string): string {
 
   let acronym = "";
   if (words.length >= 4) {
-    acronym = words.slice(0, 4).map((w) => w[0].toUpperCase()).join("");
+    acronym = words
+      .slice(0, 4)
+      .map((w) => w[0].toUpperCase())
+      .join("");
   } else if (words.length === 3) {
     acronym = words.map((w) => w[0].toUpperCase()).join("");
-    const longest = words.reduce((a, b) => a.length >= b.length ? a : b);
+    const longest = words.reduce((a, b) => (a.length >= b.length ? a : b));
     acronym += (longest[1] ?? longest[0]).toUpperCase();
   } else if (words.length === 2) {
     acronym = words.map((w) => w.slice(0, 2).toUpperCase()).join("");
@@ -91,7 +109,8 @@ function previewAcronym(title: string): string {
   if (acronym.length < 4) {
     const firstWord = words[0] ?? title.replace(/\s/g, "");
     while (acronym.length < 4) {
-      const nextChar = firstWord[acronym.length] ?? firstWord[firstWord.length - 1];
+      const nextChar =
+        firstWord[acronym.length] ?? firstWord[firstWord.length - 1];
       acronym += nextChar.toUpperCase();
     }
   }
@@ -110,7 +129,7 @@ const defaultJournal: JournalFields = {
   aims_and_scope: "",
   journal_category_id: "",
   publication_fee: "",
-  currency: "USD",
+  currency: "PKR",
 };
 
 const defaultStaff: StaffFields = { name: "", email: "" };
@@ -551,10 +570,8 @@ export default function CreateJournal() {
                       <SelectValue placeholder="Select currency" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="USD">USD</SelectItem>
                       <SelectItem value="PKR">PKR</SelectItem>
-                      <SelectItem value="EUR">EUR</SelectItem>
-                      <SelectItem value="GBP">GBP</SelectItem>
+                      <SelectItem value="USD">USD</SelectItem>
                     </SelectContent>
                   </Select>
                   <FieldHint text="Select the currency for all payment invoices for this journal." />
