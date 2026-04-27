@@ -13,11 +13,15 @@ export default function Footer() {
                 <BookOpen className="h-4 w-4 text-primary-foreground" />
               </div>
               <span className="font-serif-roboto text-lg font-semibold">
-                GIKI Journal
+                Paperuno
               </span>
             </Link>
             <p className="text-sm text-muted-foreground">
-              Empowering researchers with modern publishing tools.
+              Paperuno is a scholarly publishing platform.
+            </p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Publications are issued under{" "}
+              <strong>Indus Academic Press</strong>.
             </p>
           </div>
 
@@ -84,7 +88,7 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold text-foreground mb-4">Contact</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>support@giki.com</li>
+              <li>support@paperuno.com</li>
               <li>+1 (555) 123-4567</li>
             </ul>
           </div>
@@ -92,7 +96,8 @@ export default function Footer() {
 
         <div className="pt-8 border-t border-border/50 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} GIKI Journal. All rights reserved.
+            © {new Date().getFullYear()} Indus Academic Press. All rights
+            reserved.
           </p>
           <div className="flex gap-6 text-sm text-muted-foreground">
             <Link

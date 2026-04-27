@@ -173,7 +173,7 @@ export default function LoginPage() {
                 <BookOpen className="h-8 w-8 text-primary-foreground" />
               </div>
               <span className="font-serif-roboto text-3xl font-bold text-muted-foreground">
-                Journal<span className="text-primary">Hub</span>
+                Paperuno
               </span>
             </div>
 
@@ -288,7 +288,7 @@ export default function LoginPage() {
                 <BookOpen className="h-6 w-6 text-primary-foreground" />
               </div>
               <span className="font-serif-roboto text-2xl font-bold">
-                GIKI Journal
+                Paperuno
               </span>
             </div>
 

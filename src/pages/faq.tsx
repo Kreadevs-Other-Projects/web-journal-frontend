@@ -40,20 +40,20 @@ export default function FAQPage() {
       color: "from-blue-500 to-cyan-500",
       questions: [
         {
-          q: "What is GIKI Journal?",
-          a: "GIKI Journal is the official academic journal platform of the Ghulam Ishaq Khan Institute of Engineering Sciences and Technology. It serves as a digital repository for research papers, scholarly articles, theses, and academic publications from GIKI's faculty, researchers, and students.",
+          q: "What is Paperuno?",
+          a: "Paperuno is a scholarly publishing platform operated by Indus Academic Press. It serves as a digital hub for research papers, scholarly articles, and academic publications across multiple journals.",
         },
         {
-          q: "Who can publish on GIKI Journal?",
-          a: "GIKI Journal is primarily for GIKI faculty members, researchers, PhD scholars, and graduate students. Undergraduate students can also submit their research projects under faculty supervision. External collaborators working with GIKI researchers may also be eligible to publish.",
+          q: "Who can publish on Paperuno?",
+          a: "Paperuno is open to researchers, faculty members, PhD scholars, and graduate students across all institutions. External collaborators and independent researchers are also eligible to publish.",
         },
         {
-          q: "Is GIKI Journal open access?",
-          a: "Yes, GIKI Journal follows an open access model. All published papers are freely available to read, download, and share, promoting the global dissemination of knowledge from GIKI to the world.",
+          q: "Is Paperuno open access?",
+          a: "Yes, Paperuno supports open access publishing. Published papers are freely available to read, download, and share, promoting global dissemination of knowledge.",
         },
         {
           q: "How do I create an account?",
-          a: "You can create an account by clicking the 'Sign In' button and selecting 'Register'. Use your GIKI email address for faculty/student verification. External collaborators should register using their institutional email and provide collaboration details.",
+          a: "You can create an account by clicking the 'Sign In' button and selecting 'Register'. Use your institutional email address for verification.",
         },
       ],
     },
@@ -69,11 +69,11 @@ export default function FAQPage() {
         },
         {
           q: "What are the formatting requirements?",
-          a: "Manuscripts should follow the GIKI Journal Formatting Guidelines. Use the provided template (LaTeX or Word) which includes specific requirements for margins, font sizes (12pt), citation style (IEEE), and reference formatting. Maximum length is 25 pages including references.",
+          a: "Manuscripts should follow the Paperuno Formatting Guidelines. Use the provided template (LaTeX or Word) which includes specific requirements for margins, font sizes (12pt), citation style (IEEE), and reference formatting. Maximum length is 25 pages including references.",
         },
         {
           q: "Can I submit papers co-authored with external researchers?",
-          a: "Yes, papers with external co-authors are welcome. At least one author must be affiliated with GIKI. All authors must provide their institutional affiliations and ORCID IDs if available.",
+          a: "Yes, papers with external co-authors are welcome. At least one author must be affiliated with Paperuno. All authors must provide their institutional affiliations and ORCID IDs if available.",
         },
         {
           q: "What is the peer review process?",
@@ -117,11 +117,11 @@ export default function FAQPage() {
         },
         {
           q: "Can I get print copies of papers?",
-          a: "GIKI Journal is primarily a digital platform. However, authors can request high-quality PDFs suitable for printing. For official print copies, please contact the GIKI library.",
+          a: "Paperuno is primarily a digital platform. However, authors can request high-quality PDFs suitable for printing. For official print copies, please contact the library.",
         },
         {
           q: "Are there mobile apps available?",
-          a: "Currently, GIKI Journal is optimized for mobile browsers. Native iOS and Android apps are under development and expected to launch in late 2024.",
+          a: "Currently, Paperuno is optimized for mobile browsers. Native iOS and Android apps are under development.",
         },
       ],
     },
@@ -157,11 +157,11 @@ export default function FAQPage() {
       questions: [
         {
           q: "I'm having trouble submitting my paper",
-          a: "Contact our technical support team at support@journal.giki.edu.pk. Include screenshots of any error messages and details about your browser. Most issues are resolved within 24 hours.",
+          a: "Contact our technical support team at support@paperuno.com. Include screenshots of any error messages and details about your browser. Most issues are resolved within 24 hours.",
         },
         {
           q: "What browsers are supported?",
-          a: "GIKI Journal works best with the latest versions of Chrome, Firefox, Safari, and Edge. Internet Explorer is not supported. Enable JavaScript and cookies for full functionality.",
+          a: "Paperuno works best with the latest versions of Chrome, Firefox, Safari, and Edge. Internet Explorer is not supported. Enable JavaScript and cookies for full functionality.",
         },
         {
           q: "How do I update my profile information?",
@@ -222,7 +222,7 @@ export default function FAQPage() {
 
             <p className="mx-auto mb-10 max-w-2xl text-lg text-muted-foreground">
               Find answers to common questions about publishing, accessing
-              papers, and using GIKI Journal academic platform.
+              papers, and using the Paperuno platform.
             </p>
 
             <div className="relative mx-auto max-w-2xl">

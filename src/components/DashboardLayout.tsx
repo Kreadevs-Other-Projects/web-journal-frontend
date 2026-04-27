@@ -204,9 +204,7 @@ export function DashboardLayout({
               <div className="h-8 w-8 rounded-lg bg-gradient-primary flex items-center justify-center">
                 <BookOpen className="h-5 w-5 text-primary-foreground" />
               </div>
-              <span className="font-serif text-lg font-semibold">
-                GIKI Journal
-              </span>
+              <span className="font-serif text-lg font-semibold">Paperuno</span>
             </motion.div>
           )}
           <Button

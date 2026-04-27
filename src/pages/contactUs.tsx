@@ -53,7 +53,7 @@ export default function ContactPage() {
     setSubmitError("");
 
     try {
-      const response = await fetch(`${url}/contact`, {
+      const response = await fetch(`${url}/contact/msg`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -205,7 +205,7 @@ export default function ContactPage() {
             <h1 className="mb-6 font-serif-roboto text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl">
               Connect with{" "}
               <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                GIKI Journal
+                Paperuno
               </span>
             </h1>
 
@@ -453,9 +453,9 @@ export default function ContactPage() {
                 Visit Our Campus
               </h3>
               <p className="mb-4 text-sm text-muted-foreground">
-                The GIKI Journal editorial office is located in the Main
-                Academic Block. Visitors are welcome during office hours. Please
-                schedule an appointment for meetings with editors.
+                The Paperuno editorial office is located in the Main Academic
+                Block. Visitors are welcome during office hours. Please schedule
+                an appointment for meetings with editors.
               </p>
               <div className="flex items-center gap-4 text-sm">
                 <div className="flex items-center gap-1">
@@ -690,7 +690,7 @@ export default function ContactPage() {
           <div className="relative">
             <Sparkles className="mx-auto mb-4 h-12 w-12 text-white/80" />
             <h2 className="mb-4 font-serif-roboto text-3xl font-bold">
-              Stay Updated with GIKI Journal
+              Stay Updated with Paperuno
             </h2>
             <p className="mx-auto mb-8 max-w-2xl text-white/90">
               Subscribe to our newsletter for the latest research, publication

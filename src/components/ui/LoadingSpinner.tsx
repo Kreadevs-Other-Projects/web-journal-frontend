@@ -10,7 +10,7 @@ interface LoadingSpinnerProps {
 export const LoadingSpinner = ({
   fullScreen = true,
   size = "md",
-  text = "Loading GIKI Journal...",
+  text = "Loading Paperuno...",
 }: LoadingSpinnerProps) => {
   const sizeClasses = {
     sm: "h-8 w-8 border-2",

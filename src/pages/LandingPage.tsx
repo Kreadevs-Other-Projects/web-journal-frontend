@@ -94,7 +94,7 @@ const testimonials = [
   },
   {
     quote:
-      "Our conference proceedings have never been more organized. GIKI Journal transformed our workflow.",
+      "Our conference proceedings have never been more organized. Paperuno transformed our workflow.",
     author: "Dr. Maria Santos",
     role: "Conference Chair, ICML 2025",
   },
@@ -1007,8 +1007,7 @@ export default function LandingPage() {
             className="text-center mb-16"
           >
             <h2 className="font-serif-outfit text-4xl md:text-5xl font-bold text-foreground mb-4">
-              Why Choose{" "}
-              <span className="text-gradient-accent">GIKI Journal</span>
+              Why Choose <span className="text-gradient-accent">Paperuno</span>
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Built by researchers, for researchers. Experience the future of
@@ -1122,7 +1121,7 @@ export default function LandingPage() {
               <span className="text-gradient-accent">Researchers</span>
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Join thousands of academics who trust GIKI Journal for their
+              Join thousands of academics who trust Paperuno for their
               publishing needs.
             </p>
           </motion.div>

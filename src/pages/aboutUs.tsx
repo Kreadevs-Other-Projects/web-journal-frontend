@@ -100,7 +100,7 @@ export default function AboutPage() {
           <div className="mx-auto max-w-4xl text-center">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm text-primary">
               <GraduationCap className="h-4 w-4" />
-              <span>GIKI Academic Journal Platform</span>
+              <span>Paperuno — Scholarly Publishing Platform</span>
             </div>
 
             <h1 className="mb-6 font-serif-roboto text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl">
@@ -218,7 +218,7 @@ export default function AboutPage() {
           viewport={{ once: true }}
           className="mb-12 text-center font-serif-roboto text-3xl font-bold"
         >
-          Why Publish with <span className="text-primary">GIKI Journal</span>
+          Why Publish with <span className="text-primary">Paperuno</span>
         </motion.h2>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -397,7 +397,7 @@ export default function AboutPage() {
                 variant="outline"
                 className="border-white text-white hover:bg-white/10"
               >
-                Learn More About GIKI
+                Learn More About Paperuno
               </Button>
             </div>
           </div>
