@@ -15,9 +15,7 @@ export default function Footer() {
   return (
     <footer className="border-t border-border/50 bg-gradient-to-b from-card/50 to-background pt-16 pb-8">
       <div className="container mx-auto px-4">
-        {/* Main Footer Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12 mb-12">
-          {/* Brand Column */}
           <div className="space-y-4">
             <Link to="/" className="flex items-center gap-2.5 group">
               <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary/90 to-primary/60 shadow-lg shadow-primary/20 flex items-center justify-center transition-transform group-hover:scale-105">
@@ -41,7 +39,6 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Platform Column */}
           <div>
             <h4 className="font-semibold text-foreground mb-5 text-base relative inline-block after:absolute after:bottom-[-8px] after:left-0 after:w-8 after:h-0.5 after:bg-primary/60 after:rounded-full">
               Platform
@@ -68,7 +65,6 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Resources Column */}
           <div>
             <h4 className="font-semibold text-foreground mb-5 text-base relative inline-block after:absolute after:bottom-[-8px] after:left-0 after:w-8 after:h-0.5 after:bg-primary/60 after:rounded-full">
               Resources
@@ -95,7 +91,6 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Contact Column */}
           <div>
             <h4 className="font-semibold text-foreground mb-5 text-base relative inline-block after:absolute after:bottom-[-8px] after:left-0 after:w-8 after:h-0.5 after:bg-primary/60 after:rounded-full">
               Contact
@@ -125,7 +120,6 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom Bar */}
         <div className="pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-xs text-muted-foreground/70">
             © {currentYear} Indus Academic Press. All rights reserved.
