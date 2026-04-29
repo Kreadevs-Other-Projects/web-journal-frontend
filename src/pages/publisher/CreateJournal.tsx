@@ -121,7 +121,8 @@ const defaultJournal: JournalFields = {
   title: "",
   issn: "",
   doi: "",
-  publisher_name: "",
+  // publisher_name: "",
+  publisher_name: "Indus Academic Press",
   type: "",
   peer_review_policy: "",
   oa_policy: "",
@@ -144,7 +145,8 @@ export default function CreateJournal() {
   const [step, setStep] = useState(0);
   const [journal, setJournal] = useState<JournalFields>({
     ...defaultJournal,
-    publisher_name: (user as any)?.organization_name || user?.username || "",
+    // publisher_name: (user as any)?.organization_name || user?.username || "",
+    publisher_name: "Indus Academic Press",
   });
   const [chiefEditor, setChiefEditor] = useState<StaffFields>(defaultStaff);
   const [journalManager, setJournalManager] =
