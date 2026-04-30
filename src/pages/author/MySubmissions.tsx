@@ -1,143 +1,127 @@
+import { useEffect, useState } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
-import { PaperCard } from "@/components/PaperCard";
 import { PageTransition } from "@/components/AnimationWrappers";
 import { Search, Filter, ChevronDown, StickyNote } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/context/AuthContext";
+import { url } from "@/url";
 
-const allSubmissions = [
-  {
-    id: "SUB-2026-042",
-    title: "Machine Learning Approaches for Climate Pattern Recognition",
-    category: "Machine Learning",
-    keywords: ["ML", "Climate", "Pattern Recognition"],
-    status: "under_review" as const,
-    currentVersion: "v1.2",
-    submittedAt: "Dec 15, 2025",
-  },
-  {
-    id: "SUB-2026-038",
-    title: "Quantum Error Correction in Noisy Environments",
-    category: "Quantum Computing",
-    keywords: ["Quantum", "Error Correction", "NISQ"],
-    status: "pending_revision" as const,
-    currentVersion: "v1.0",
-    submittedAt: "Dec 10, 2025",
-  },
-  {
-    id: "SUB-2026-035",
-    title: "Neural Architecture Search for Edge Devices",
-    category: "Computer Science",
-    keywords: ["NAS", "Edge Computing", "Efficiency"],
-    status: "accepted" as const,
-    currentVersion: "v2.1",
-    submittedAt: "Nov 28, 2025",
-  },
-  {
-    id: "SUB-2026-029",
-    title: "Biodegradable Polymers for Sustainable Packaging",
-    category: "Materials Science",
-    keywords: ["Polymers", "Biodegradable", "Packaging"],
-    status: "published" as const,
-    currentVersion: "v1.5",
-    submittedAt: "Nov 15, 2025",
-  },
-  {
-    id: "SUB-2026-025",
-    title: "Graph Neural Networks for Social Network Analysis",
-    category: "Machine Learning",
-    keywords: ["GNN", "Social Networks", "Graph Theory"],
-    status: "published" as const,
-    currentVersion: "v0.8",
-    submittedAt: "Nov 5, 2025",
-  },
-  {
-    id: "SUB-2026-018",
-    title: "Renewable Energy Grid Integration Challenges",
-    category: "Energy Systems",
-    keywords: ["Renewable", "Grid", "Integration"],
-    status: "under_review" as const,
-    currentVersion: "v1.3",
-    submittedAt: "Oct 22, 2025",
-  },
-  {
-    id: "SUB-2026-012",
-    title: "CRISPR-Cas9 Applications in Agriculture",
-    category: "Biotechnology",
-    keywords: ["CRISPR", "Agriculture", "Gene Editing"],
-    status: "accepted" as const,
-    currentVersion: "v2.0",
-    submittedAt: "Oct 10, 2025",
-  },
-  {
-    id: "SUB-2025-098",
-    title: "Blockchain for Supply Chain Transparency",
-    category: "Computer Science",
-    keywords: ["Blockchain", "Supply Chain", "Transparency"],
-    status: "published" as const,
-    currentVersion: "v3.1",
-    submittedAt: "Sep 15, 2025",
-  },
-];
+interface Paper {
+  id: string;
+  title: string;
+  status: string;
+  author_names?: string[];
+  keywords?: string[];
+  category?: string;
+  submitted_at?: string;
+  updated_at: string;
+  journal_title?: string;
+  current_version_label?: string;
+}
+
+const STATUS_LABELS: Record<string, string> = {
+  pending_ca_approval: "Pending CA Approval",
+  submitted: "Submitted",
+  under_review: "Under Review",
+  pending_revision: "Revision Requested",
+  resubmitted: "Resubmitted",
+  reviewed: "Reviewed",
+  sub_editor_approved: "Approved by Editor",
+  accepted: "Accepted",
+  rejected: "Rejected",
+  published: "Published",
+  ca_rejected: "CA Rejected",
+};
+
+function StatusBadge({ status }: { status: string }) {
+  const label = STATUS_LABELS[status] ?? status.replace(/_/g, " ");
+  const variant: Record<string, string> = {
+    accepted: "bg-green-500/10 text-green-600 border-green-500/30",
+    published: "bg-blue-500/10 text-blue-600 border-blue-500/30",
+    rejected: "bg-red-500/10 text-red-600 border-red-500/30",
+    ca_rejected: "bg-red-500/10 text-red-600 border-red-500/30",
+    under_review: "bg-yellow-500/10 text-yellow-600 border-yellow-500/30",
+    pending_revision: "bg-orange-500/10 text-orange-600 border-orange-500/30",
+  };
+  const cls = variant[status] ?? "bg-muted text-muted-foreground border-border";
+  return (
+    <span
+      className={`inline-block text-xs px-2 py-0.5 rounded-full border font-medium capitalize ${cls}`}
+    >
+      {label}
+    </span>
+  );
+}
+
+function formatDate(dateStr?: string) {
+  if (!dateStr) return "—";
+  return new Date(dateStr).toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
 
 const ITEMS_PER_PAGE = 6;
 
 export default function MySubmissions() {
+  const { token, user } = useAuth();
+  const [papers, setPapers] = useState<Paper[]>([]);
+  const [loading, setLoading] = useState(true);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
   const [currentPage, setCurrentPage] = useState(1);
-  const { user, isLoading } = useAuth();
 
-  if (isLoading) return <div>Loading...</div>;
+  useEffect(() => {
+    if (!token) return;
+    fetch(`${url}/papers/getPapersByAuthor`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success) setPapers(data.papers ?? []);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [token]);
+
   if (!user) return null;
 
-  const filteredSubmissions = allSubmissions.filter((submission) => {
+  const filtered = papers.filter((p) => {
+    const q = searchQuery.toLowerCase();
     const matchesSearch =
-      searchQuery === "" ||
-      submission.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      submission.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      submission.keywords.some((keyword) =>
-        keyword.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-
-    const matchesStatus =
-      statusFilter === "all" || submission.status === statusFilter;
-
+      !q ||
+      p.title.toLowerCase().includes(q) ||
+      (p.category ?? "").toLowerCase().includes(q) ||
+      (p.keywords ?? []).some((k) => k.toLowerCase().includes(q));
+    const matchesStatus = statusFilter === "all" || p.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
-  const sortedSubmissions = [...filteredSubmissions].sort((a, b) => {
-    if (sortBy === "newest") {
+  const sorted = [...filtered].sort((a, b) => {
+    if (sortBy === "newest")
       return (
-        new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
+        new Date(b.submitted_at ?? b.updated_at).getTime() -
+        new Date(a.submitted_at ?? a.updated_at).getTime()
       );
-    } else if (sortBy === "oldest") {
+    if (sortBy === "oldest")
       return (
-        new Date(a.submittedAt).getTime() - new Date(b.submittedAt).getTime()
+        new Date(a.submitted_at ?? a.updated_at).getTime() -
+        new Date(b.submitted_at ?? b.updated_at).getTime()
       );
-    } else if (sortBy === "title") {
-      return a.title.localeCompare(b.title);
-    }
+    if (sortBy === "title") return a.title.localeCompare(b.title);
     return 0;
   });
 
-  const totalPages = Math.ceil(sortedSubmissions.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentSubmissions = sortedSubmissions.slice(startIndex, endIndex);
-
-  const handleStatusChange = (value: string) => {
-    setStatusFilter(value);
-    setCurrentPage(1);
-  };
-
-  const handleSortChange = (value: string) => {
-    setSortBy(value);
-    setCurrentPage(1);
-  };
+  const totalPages = Math.ceil(sorted.length / ITEMS_PER_PAGE);
+  const paginated = sorted.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE,
+  );
 
   const handleClearFilters = () => {
     setSearchQuery("");
@@ -151,21 +135,18 @@ export default function MySubmissions() {
       <PageTransition>
         <div className="space-y-6">
           {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">
-                My Submissions
-              </h1>
-              <p className="text-muted-foreground">
-                View and manage all your submitted research papers
-              </p>
-            </div>
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">
+              My Submissions
+            </h1>
+            <p className="text-muted-foreground">
+              View and manage all your submitted research papers
+            </p>
           </div>
 
           {/* Search and Filters */}
           <div className="glass-card p-4">
             <div className="flex flex-col sm:flex-row gap-4">
-              {/* Search Input */}
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -175,57 +156,52 @@ export default function MySubmissions() {
                     setSearchQuery(e.target.value);
                     setCurrentPage(1);
                   }}
-                  className="pl-10 text-foreground bg-background border-border focus:border-primary"
+                  className="pl-10"
                 />
               </div>
 
-              {/* Status Filter */}
-              <div className="flex-1 min-w-0">
-                <div className="relative">
-                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
-                    <StickyNote className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => handleStatusChange(e.target.value)}
-                    className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-border bg-background focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none text-foreground appearance-none cursor-pointer"
-                  >
-                    <option value="all">All Status</option>
-                    <option value="under_review">Under Review</option>
-                    <option value="pending_revision">Pending Revision</option>
-                    <option value="accepted">Accepted</option>
-                    <option value="rejected">Rejected</option>
-                    <option value="draft">Drafts</option>
-                    <option value="published">Published</option>
-                  </select>
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                </div>
+              <div className="flex-1 min-w-0 relative">
+                <StickyNote className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <select
+                  value={statusFilter}
+                  onChange={(e) => {
+                    setStatusFilter(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-border bg-background focus:border-primary focus:outline-none text-foreground appearance-none cursor-pointer"
+                >
+                  <option value="all">All Status</option>
+                  <option value="pending_ca_approval">
+                    Pending CA Approval
+                  </option>
+                  <option value="submitted">Submitted</option>
+                  <option value="under_review">Under Review</option>
+                  <option value="pending_revision">Revision Requested</option>
+                  <option value="resubmitted">Resubmitted</option>
+                  <option value="accepted">Accepted</option>
+                  <option value="rejected">Rejected</option>
+                  <option value="published">Published</option>
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
               </div>
 
-              {/* Sort Filter */}
-              <div className="flex-1 min-w-0">
-                <div className="relative">
-                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
-                    <Filter className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                  <select
-                    value={sortBy}
-                    onChange={(e) => handleSortChange(e.target.value)}
-                    className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-border bg-background focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none text-foreground appearance-none cursor-pointer"
-                  >
-                    <option value="newest">Newest First</option>
-                    <option value="oldest">Oldest First</option>
-                    <option value="title">Title A-Z</option>
-                  </select>
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                </div>
+              <div className="flex-1 min-w-0 relative">
+                <Filter className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <select
+                  value={sortBy}
+                  onChange={(e) => {
+                    setSortBy(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-border bg-background focus:border-primary focus:outline-none text-foreground appearance-none cursor-pointer"
+                >
+                  <option value="newest">Newest First</option>
+                  <option value="oldest">Oldest First</option>
+                  <option value="title">Title A-Z</option>
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
               </div>
 
-              {/* Clear Filters Button */}
               {(searchQuery ||
                 statusFilter !== "all" ||
                 sortBy !== "newest") && (
@@ -243,49 +219,39 @@ export default function MySubmissions() {
             </div>
           </div>
 
-          {/* Results Info */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-sm">
-            <div className="text-muted-foreground">
-              <p>
-                Showing {currentSubmissions.length} of{" "}
-                {sortedSubmissions.length} submissions
-                {searchQuery && (
-                  <span className="text-foreground font-medium">
-                    {" "}
-                    for "{searchQuery}"
-                  </span>
-                )}
-                {statusFilter !== "all" && (
-                  <span className="ml-2">
-                    • Status:{" "}
-                    <span className="text-foreground font-medium capitalize">
-                      {statusFilter.replace("_", " ")}
-                    </span>
-                  </span>
-                )}
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <div className="text-muted-foreground">
-                Sorted by:{" "}
-                <span className="text-foreground font-medium capitalize">
-                  {sortBy === "newest"
-                    ? "Newest"
-                    : sortBy === "oldest"
+          {/* Results info */}
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <p>
+              Showing {paginated.length} of {sorted.length} submissions
+              {searchQuery && (
+                <span className="text-foreground font-medium">
+                  {" "}
+                  for "{searchQuery}"
+                </span>
+              )}
+            </p>
+            <span>
+              Sorted by:{" "}
+              <span className="text-foreground font-medium">
+                {sortBy === "newest"
+                  ? "Newest"
+                  : sortBy === "oldest"
                     ? "Oldest"
                     : "Title"}
-                </span>
-              </div>
-            </div>
+              </span>
+            </span>
           </div>
 
-          {/* Submissions List */}
-          <div className="space-y-4">
-            {currentSubmissions.length === 0 ? (
+          {/* List */}
+          <div className="space-y-3">
+            {loading ? (
+              <div className="glass-card p-12 text-center text-muted-foreground text-sm">
+                Loading…
+              </div>
+            ) : paginated.length === 0 ? (
               <div className="glass-card p-12 text-center">
                 <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-foreground mb-2">
+                <h3 className="text-lg font-semibold mb-2">
                   No submissions found
                 </h3>
                 <p className="text-muted-foreground mb-4">
@@ -294,96 +260,85 @@ export default function MySubmissions() {
                     : "You haven't submitted any papers yet."}
                 </p>
                 {(searchQuery || statusFilter !== "all") && (
-                  <Button
-                    onClick={handleClearFilters}
-                    className="bg-gradient-primary hover:opacity-90"
-                  >
-                    Clear filters
-                  </Button>
+                  <Button onClick={handleClearFilters}>Clear filters</Button>
                 )}
               </div>
             ) : (
-              currentSubmissions.map((submission) => (
-                <PaperCard key={submission.id} {...submission} />
+              paginated.map((paper) => (
+                <div key={paper.id} className="glass-card p-4 space-y-2">
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="font-medium text-sm leading-snug">
+                      {paper.title}
+                    </p>
+                    <StatusBadge status={paper.status} />
+                  </div>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                    {paper.journal_title && <span>{paper.journal_title}</span>}
+                    {paper.category && <span>{paper.category}</span>}
+                    {paper.submitted_at && (
+                      <span>Submitted: {formatDate(paper.submitted_at)}</span>
+                    )}
+                    <span>Updated: {formatDate(paper.updated_at)}</span>
+                  </div>
+                  {(paper.keywords ?? []).length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {(paper.keywords ?? []).slice(0, 5).map((k) => (
+                        <Badge key={k} variant="secondary" className="text-xs">
+                          {k}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                  <p className="text-xs text-muted-foreground font-mono">
+                    ID: {paper.id}
+                  </p>
+                </div>
               ))
             )}
           </div>
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-border/50">
-              <div className="text-sm text-muted-foreground">
+            <div className="flex items-center justify-between pt-4 border-t border-border/50">
+              <span className="text-sm text-muted-foreground">
                 Page {currentPage} of {totalPages}
-              </div>
-
-              <div className="flex items-center gap-2">
+              </span>
+              <div className="flex gap-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.max(prev - 1, 1))
-                  }
+                  onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
                   disabled={currentPage === 1}
-                  className="text-foreground border-border hover:bg-muted"
                 >
                   Previous
                 </Button>
-
-                <div className="flex items-center gap-1">
-                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                    let pageNum;
-                    if (totalPages <= 5) {
-                      pageNum = i + 1;
-                    } else if (currentPage <= 3) {
-                      pageNum = i + 1;
-                    } else if (currentPage >= totalPages - 2) {
-                      pageNum = totalPages - 4 + i;
-                    } else {
-                      pageNum = currentPage - 2 + i;
-                    }
-
-                    return (
-                      <Button
-                        key={pageNum}
-                        variant={
-                          currentPage === pageNum ? "default" : "outline"
-                        }
-                        size="sm"
-                        className={`w-10 ${
-                          currentPage === pageNum
-                            ? "bg-primary text-primary-foreground"
-                            : "text-foreground border-border hover:bg-muted"
-                        }`}
-                        onClick={() => setCurrentPage(pageNum)}
-                      >
-                        {pageNum}
-                      </Button>
-                    );
-                  })}
-
-                  {totalPages > 5 && currentPage < totalPages - 2 && (
-                    <>
-                      <span className="px-2 text-muted-foreground">...</span>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-10 text-foreground border-border hover:bg-muted"
-                        onClick={() => setCurrentPage(totalPages)}
-                      >
-                        {totalPages}
-                      </Button>
-                    </>
-                  )}
-                </div>
-
+                {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                  let page = i + 1;
+                  if (totalPages > 5) {
+                    if (currentPage <= 3) page = i + 1;
+                    else if (currentPage >= totalPages - 2)
+                      page = totalPages - 4 + i;
+                    else page = currentPage - 2 + i;
+                  }
+                  return (
+                    <Button
+                      key={page}
+                      variant={currentPage === page ? "default" : "outline"}
+                      size="sm"
+                      className="w-10"
+                      onClick={() => setCurrentPage(page)}
+                    >
+                      {page}
+                    </Button>
+                  );
+                })}
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() =>
-                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                    setCurrentPage((p) => Math.min(p + 1, totalPages))
                   }
                   disabled={currentPage === totalPages}
-                  className="text-foreground border-border hover:bg-muted"
                 >
                   Next
                 </Button>

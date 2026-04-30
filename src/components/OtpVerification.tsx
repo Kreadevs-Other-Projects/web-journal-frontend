@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Lock,
   Mail,
@@ -10,10 +10,10 @@ import {
   CheckCircle,
   Clock,
   RefreshCw,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
@@ -21,16 +21,17 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { cn } from '@/lib/utils';
-import { useToast } from '@/hooks/use-toast';
+} from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
+import { url } from "@/url";
 
 interface OtpVerificationProps {
   isOpen: boolean;
   onClose: () => void;
   email: string;
-  type: 'login' | 'signup';
+  type: "login" | "signup";
   onVerificationSuccess: () => void;
   resendOtp: () => Promise<boolean>;
 }
@@ -43,9 +44,9 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   onVerificationSuccess,
   resendOtp,
 }) => {
-  const [otp, setOtp] = useState<string[]>(['', '', '', '', '', '']);
+  const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
   const [resendDisabled, setResendDisabled] = useState(false);
@@ -54,17 +55,19 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const { toast } = useToast();
 
-  const maskedEmail = email
-    .replace(/(.{2})(.*)(?=@)/, (_, first, middle) => first + '*'.repeat(middle.length));
+  const maskedEmail = email.replace(
+    /(.{2})(.*)(?=@)/,
+    (_, first, middle) => first + "*".repeat(middle.length),
+  );
 
   useEffect(() => {
     if (isOpen) {
-      setOtp(['', '', '', '', '', '']);
-      setError('');
+      setOtp(["", "", "", "", "", ""]);
+      setError("");
       setSuccess(false);
       setCountdown(60);
       setResendDisabled(true);
-      
+
       const timer = setInterval(() => {
         setCountdown((prev) => {
           if (prev <= 1) {
@@ -97,128 +100,137 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
       inputRefs.current[index + 1]?.focus();
     }
 
-    if (newOtp.every(digit => digit !== '') && index === 5) {
+    if (newOtp.every((digit) => digit !== "") && index === 5) {
       handleSubmit();
     }
   };
 
-  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+  const handleKeyDown = (
+    index: number,
+    e: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
-    } else if (e.key === 'ArrowLeft' && index > 0) {
+    } else if (e.key === "ArrowLeft" && index > 0) {
       inputRefs.current[index - 1]?.focus();
-    } else if (e.key === 'ArrowRight' && index < 5) {
+    } else if (e.key === "ArrowRight" && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
   };
 
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
-    const pastedData = e.clipboardData.getData('text/plain').trim();
-    
+    const pastedData = e.clipboardData.getData("text/plain").trim();
+
     if (/^\d{6}$/.test(pastedData)) {
-      const digits = pastedData.split('');
+      const digits = pastedData.split("");
       const newOtp = [...otp];
-      
+
       digits.slice(0, 6).forEach((digit, index) => {
         newOtp[index] = digit;
       });
-      
+
       setOtp(newOtp);
-      
+
       const lastIndex = Math.min(5, digits.length - 1);
       inputRefs.current[lastIndex]?.focus();
     }
   };
 
-const handleSubmit = async () => {
-  if (verifying) return;
+  const handleSubmit = async () => {
+    if (verifying) return;
 
-  const otpString = otp.join('');
-  if (otpString.length !== 6) {
-    setError('Please enter the 6-digit OTP');
-    return;
-  }
-
-  setVerifying(true);
-  setError('');
-  
-  try {
-    const response = await fetch(`http://localhost:5000/api/otp/send`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email,
-        otp: otpString,
-      })
-    });
-
-    const result = await response.json();
-    
-    if (result.success) {
-      setSuccess(true);
-      toast({
-        title: "Verification Successful!",
-        description: type === 'signup' 
-          ? "Your account has been verified successfully!"
-          : "You have been logged in successfully!",
-      });
-      
-      setTimeout(() => {
-        onVerificationSuccess();
-      }, 1000);
-    } else {
-      throw new Error(result.message || 'Invalid OTP code');
+    const otpString = otp.join("");
+    if (otpString.length !== 6) {
+      setError("Please enter the 6-digit OTP");
+      return;
     }
-  } catch (err: any) {
-    setError(err.message || 'Invalid OTP. Please try again.');
-    const inputs = document.querySelectorAll('.otp-input');
-    inputs.forEach(input => {
-      input.classList.add('animate-shake');
-      setTimeout(() => input.classList.remove('animate-shake'), 500);
-    });
-  } finally {
-    setVerifying(false);
-  }
-};
 
-const handleResendOtp = async () => {
-  if (resendLoading || resendDisabled) return;
+    setVerifying(true);
+    setError("");
 
-  setResendLoading(true);
-  setError('');
+    try {
+      const endpoint =
+        type === "signup"
+          ? `${url}/auth/verifysignup`
+          : `${url}/auth/verifyLoginOTP`;
 
-  try {
-    const success = await resendOtp();
-    if (success) {
-      toast({
-        title: "OTP Resent!",
-        description: "A new OTP has been sent to your email.",
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          otp: otpString,
+        }),
       });
-      setResendDisabled(true);
-      setCountdown(60);
-      
-      const timer = setInterval(() => {
-        setCountdown((prev) => {
-          if (prev <= 1) {
-            clearInterval(timer);
-            setResendDisabled(false);
-            return 0;
-          }
-          return prev - 1;
+
+      const result = await response.json();
+
+      if (result.success) {
+        setSuccess(true);
+        toast({
+          title: "Verification Successful!",
+          description:
+            type === "signup"
+              ? "Your account has been verified successfully!"
+              : "You have been logged in successfully!",
         });
-      }, 1000);
-    } else {
-      throw new Error('Failed to resend OTP');
+
+        setTimeout(() => {
+          onVerificationSuccess();
+        }, 1000);
+      } else {
+        throw new Error(result.message || "Invalid OTP code");
+      }
+    } catch (err: any) {
+      setError(err.message || "Invalid OTP. Please try again.");
+      const inputs = document.querySelectorAll(".otp-input");
+      inputs.forEach((input) => {
+        input.classList.add("animate-shake");
+        setTimeout(() => input.classList.remove("animate-shake"), 500);
+      });
+    } finally {
+      setVerifying(false);
     }
-  } catch (err: any) {
-    setError(err.message || 'Failed to resend OTP');
-  } finally {
-    setResendLoading(false);
-  }
-};
+  };
+
+  const handleResendOtp = async () => {
+    if (resendLoading || resendDisabled) return;
+
+    setResendLoading(true);
+    setError("");
+
+    try {
+      const success = await resendOtp();
+      if (success) {
+        toast({
+          title: "OTP Resent!",
+          description: "A new OTP has been sent to your email.",
+        });
+        setResendDisabled(true);
+        setCountdown(60);
+
+        const timer = setInterval(() => {
+          setCountdown((prev) => {
+            if (prev <= 1) {
+              clearInterval(timer);
+              setResendDisabled(false);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      } else {
+        throw new Error("Failed to resend OTP");
+      }
+    } catch (err: any) {
+      setError(err.message || "Failed to resend OTP");
+    } finally {
+      setResendLoading(false);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -234,7 +246,7 @@ const handleResendOtp = async () => {
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-1/4 -left-32 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl" />
           <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl" />
-          
+
           {[...Array(30)].map((_, i) => (
             <motion.div
               key={i}
@@ -264,11 +276,11 @@ const handleResendOtp = async () => {
           className="relative w-full max-w-md"
         >
           <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-blue-500/10 rounded-2xl blur-xl" />
-          
+
           <Card className="relative bg-gray-900/90 border-gray-800 shadow-2xl shadow-black/50 overflow-hidden backdrop-blur-sm">
             {/* <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-muted-foreground via-purple-500 to-blue-500" /> */}
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-primary" />
-            
+
             <CardHeader className="pb-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -280,7 +292,9 @@ const handleResendOtp = async () => {
                       Verify Your Email
                     </CardTitle>
                     <CardDescription className="text-gray-400">
-                      {type === 'signup' ? 'Complete your registration' : 'Secure your login'}
+                      {type === "signup"
+                        ? "Complete your registration"
+                        : "Secure your login"}
                     </CardDescription>
                   </div>
                 </div>
@@ -302,8 +316,12 @@ const handleResendOtp = async () => {
                     <Mail className="h-5 w-5 text-blue-400" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-300">Verification code sent to</p>
-                    <p className="text-sm text-gray-400 truncate">{maskedEmail}</p>
+                    <p className="text-sm font-medium text-gray-300">
+                      Verification code sent to
+                    </p>
+                    <p className="text-sm text-gray-400 truncate">
+                      {maskedEmail}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -312,7 +330,7 @@ const handleResendOtp = async () => {
                 <Label className="text-sm font-medium text-gray-300">
                   Enter 6-digit verification code
                 </Label>
-                
+
                 <div className="flex justify-center gap-2">
                   {otp.map((digit, index) => (
                     <motion.div
@@ -336,11 +354,11 @@ const handleResendOtp = async () => {
                           "focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20",
                           error && "border-red-500/50",
                           success && "border-green-500/50",
-                          "transition-all duration-200"
+                          "transition-all duration-200",
                         )}
                         disabled={verifying || success}
                       />
-                      
+
                       {document.activeElement === inputRefs.current[index] && (
                         <motion.div
                           layoutId="activeIndicator"
@@ -355,11 +373,11 @@ const handleResendOtp = async () => {
                   <div className="flex items-center justify-between text-xs mb-1">
                     <span className="text-gray-400">Verification progress</span>
                     <span className="font-medium text-white">
-                      {otp.filter(d => d !== '').length}/6
+                      {otp.filter((d) => d !== "").length}/6
                     </span>
                   </div>
-                  <Progress 
-                    value={(otp.filter(d => d !== '').length / 6) * 100} 
+                  <Progress
+                    value={(otp.filter((d) => d !== "").length / 6) * 100}
                     className="h-1.5 bg-gray-800"
                   />
                 </div>
@@ -369,14 +387,17 @@ const handleResendOtp = async () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-sm">
                   <Clock className="h-4 w-4 text-gray-400" />
-                  <span className={cn(
-                    "font-medium",
-                    countdown > 10 ? "text-gray-400" : "text-yellow-400"
-                  )}>
-                    {Math.floor(countdown / 60)}:{(countdown % 60).toString().padStart(2, '0')}
+                  <span
+                    className={cn(
+                      "font-medium",
+                      countdown > 10 ? "text-gray-400" : "text-yellow-400",
+                    )}
+                  >
+                    {Math.floor(countdown / 60)}:
+                    {(countdown % 60).toString().padStart(2, "0")}
                   </span>
                 </div>
-                
+
                 <Button
                   variant="ghost"
                   size="sm"
@@ -403,7 +424,7 @@ const handleResendOtp = async () => {
                 {error && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
+                    animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
                     className="overflow-hidden"
                   >
@@ -417,16 +438,15 @@ const handleResendOtp = async () => {
                 {success && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
+                    animate={{ opacity: 1, height: "auto" }}
                     className="overflow-hidden"
                   >
                     <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20 flex items-start gap-3">
                       <CheckCircle className="h-5 w-5 text-green-400 flex-shrink-0 mt-0.5" />
                       <p className="text-sm text-green-400">
-                        {type === 'signup' 
-                          ? 'Account verified successfully! Redirecting...'
-                          : 'Login verified successfully! Redirecting...'
-                        }
+                        {type === "signup"
+                          ? "Account verified successfully! Redirecting..."
+                          : "Login verified successfully! Redirecting..."}
                       </p>
                     </div>
                   </motion.div>
@@ -437,7 +457,7 @@ const handleResendOtp = async () => {
             <CardFooter className="flex flex-col gap-3">
               <Button
                 onClick={handleSubmit}
-                disabled={otp.some(d => d === '') || verifying || success}
+                disabled={otp.some((d) => d === "") || verifying || success}
                 // className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white shadow-lg shadow-blue-500/30"
                 className="w-full bg-gradient-primary hover:to-purple-500 text-white shadow-lg shadow-blue-500/30"
               >
@@ -461,11 +481,11 @@ const handleResendOtp = async () => {
 
               <div className="text-center">
                 <p className="text-xs text-gray-500">
-                  By verifying, you agree to our{' '}
+                  By verifying, you agree to our{" "}
                   <button className="text-blue-400 hover:text-blue-300 underline">
                     Terms of Service
-                  </button>{' '}
-                  and{' '}
+                  </button>{" "}
+                  and{" "}
                   <button className="text-blue-400 hover:text-blue-300 underline">
                     Privacy Policy
                   </button>
@@ -475,7 +495,9 @@ const handleResendOtp = async () => {
               {/* Security badge */}
               <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
                 <Shield className="h-3 w-3" />
-                <span>Your information is protected with 256-bit encryption</span>
+                <span>
+                  Your information is protected with 256-bit encryption
+                </span>
               </div>
             </CardFooter>
           </Card>

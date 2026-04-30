@@ -90,7 +90,12 @@ export default function SubmitPaper() {
     { name: "", email: "", affiliation: "", orcid: "" },
   ]);
   const [correspondingAuthor, setCorrespondingAuthor] =
-    useState<CorrespondingAuthorDetail>({ name: "", email: "", affiliation: "", phone: "" });
+    useState<CorrespondingAuthorDetail>({
+      name: "",
+      email: "",
+      affiliation: "",
+      phone: "",
+    });
   const [corrAuthorIsSelf, setCorrAuthorIsSelf] = useState(true);
   const [keywords, setKeywords] = useState<string[]>([]);
   const [references, setReferences] = useState<Reference[]>([
@@ -328,6 +333,10 @@ export default function SubmitPaper() {
       return "Abstract cannot exceed 3000 characters.";
     if (authorDetails.filter((a) => a.name.trim()).length === 0)
       return "At least one author name is required.";
+    if (!authorDetails[0]?.email.trim())
+      return "First author email is required.";
+    if (!authorDetails[0]?.affiliation.trim())
+      return "First author affiliation/institution is required.";
     if (!articleType) return "Please select an article type.";
     if (keywords.length === 0) return "At least one keyword is required.";
     if (keywords.length > 5) return "Maximum 5 keywords allowed.";
@@ -367,9 +376,12 @@ export default function SubmitPaper() {
         JSON.stringify(filledAuthors.map((a) => a.name)),
       );
 
+      // When submitter is the CA, send empty list — backend goes directly to 'submitted'
       const correspondingAuthorList = corrAuthorIsSelf
-        ? [{ name: user?.username || "", email: user?.email || "", affiliation: "", phone: "" }]
-        : correspondingAuthor.name.trim() ? [correspondingAuthor] : [];
+        ? []
+        : correspondingAuthor.name.trim()
+          ? [correspondingAuthor]
+          : [];
       formData.append(
         "corresponding_author_details",
         JSON.stringify(correspondingAuthorList),
@@ -907,10 +919,15 @@ export default function SubmitPaper() {
                         <Input
                           value={author.name}
                           onChange={(e) =>
-                            updateArrayField(authorDetails, setAuthorDetails, i, {
-                              ...author,
-                              name: e.target.value,
-                            })
+                            updateArrayField(
+                              authorDetails,
+                              setAuthorDetails,
+                              i,
+                              {
+                                ...author,
+                                name: e.target.value,
+                              },
+                            )
                           }
                           placeholder="Dr. Jane Smith"
                         />
@@ -921,10 +938,15 @@ export default function SubmitPaper() {
                           type="email"
                           value={author.email}
                           onChange={(e) =>
-                            updateArrayField(authorDetails, setAuthorDetails, i, {
-                              ...author,
-                              email: e.target.value,
-                            })
+                            updateArrayField(
+                              authorDetails,
+                              setAuthorDetails,
+                              i,
+                              {
+                                ...author,
+                                email: e.target.value,
+                              },
+                            )
                           }
                           placeholder="jane@university.edu"
                         />
@@ -936,10 +958,15 @@ export default function SubmitPaper() {
                         <Input
                           value={author.affiliation}
                           onChange={(e) =>
-                            updateArrayField(authorDetails, setAuthorDetails, i, {
-                              ...author,
-                              affiliation: e.target.value,
-                            })
+                            updateArrayField(
+                              authorDetails,
+                              setAuthorDetails,
+                              i,
+                              {
+                                ...author,
+                                affiliation: e.target.value,
+                              },
+                            )
                           }
                           placeholder="University of Science"
                         />
@@ -949,10 +976,15 @@ export default function SubmitPaper() {
                         <Input
                           value={author.orcid}
                           onChange={(e) =>
-                            updateArrayField(authorDetails, setAuthorDetails, i, {
-                              ...author,
-                              orcid: e.target.value,
-                            })
+                            updateArrayField(
+                              authorDetails,
+                              setAuthorDetails,
+                              i,
+                              {
+                                ...author,
+                                orcid: e.target.value,
+                              },
+                            )
                           }
                           placeholder="0000-0000-0000-0000"
                         />
@@ -990,13 +1022,18 @@ export default function SubmitPaper() {
                   onChange={(e) => setCorrAuthorIsSelf(e.target.checked)}
                   className="w-4 h-4 accent-primary"
                 />
-                <label htmlFor="corrAuthorIsSelf" className="text-sm cursor-pointer select-none">
+                <label
+                  htmlFor="corrAuthorIsSelf"
+                  className="text-sm cursor-pointer select-none"
+                >
                   I am the corresponding author
                 </label>
               </div>
               {!corrAuthorIsSelf && (
                 <div className="rounded-lg border border-border p-4 space-y-3">
-                  <p className="text-xs font-semibold text-muted-foreground">Corresponding Author Details</p>
+                  <p className="text-xs font-semibold text-muted-foreground">
+                    Corresponding Author Details
+                  </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <Label className="text-xs mb-1 block">Full Name *</Label>
@@ -1026,7 +1063,9 @@ export default function SubmitPaper() {
                       />
                     </div>
                     <div>
-                      <Label className="text-xs mb-1 block">Affiliation *</Label>
+                      <Label className="text-xs mb-1 block">
+                        Affiliation *
+                      </Label>
                       <Input
                         value={correspondingAuthor.affiliation}
                         onChange={(e) =>
@@ -1577,15 +1616,26 @@ export default function SubmitPaper() {
                   </p>
                 ) : correspondingAuthor.name.trim() ? (
                   <p className="mt-1">
-                    <span className="font-medium">{correspondingAuthor.name}</span>
+                    <span className="font-medium">
+                      {correspondingAuthor.name}
+                    </span>
                     {correspondingAuthor.affiliation && (
-                      <span className="text-muted-foreground"> · {correspondingAuthor.affiliation}</span>
+                      <span className="text-muted-foreground">
+                        {" "}
+                        · {correspondingAuthor.affiliation}
+                      </span>
                     )}
                     {correspondingAuthor.email && (
-                      <span className="text-muted-foreground"> · {correspondingAuthor.email}</span>
+                      <span className="text-muted-foreground">
+                        {" "}
+                        · {correspondingAuthor.email}
+                      </span>
                     )}
                     {correspondingAuthor.phone && (
-                      <span className="text-muted-foreground"> · {correspondingAuthor.phone}</span>
+                      <span className="text-muted-foreground">
+                        {" "}
+                        · {correspondingAuthor.phone}
+                      </span>
                     )}
                   </p>
                 ) : null}
