@@ -110,6 +110,12 @@ interface Journal {
     | "accepted"
     | "cancelled";
   chief_editor_email?: string;
+
+  // PASTE THESE 3 LINES:
+  contact_email?: string;
+  contact_phone?: string;
+  contact_address?: string;
+
   journal_manager_invitation_status?:
     | "pending"
     | "expired"
@@ -1304,6 +1310,8 @@ export default function PublisherDashboard() {
                   )}
                 </CardContent>
               </Card>
+
+              {/* ========================================== */}
 
               {/* Two Column Layout */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
