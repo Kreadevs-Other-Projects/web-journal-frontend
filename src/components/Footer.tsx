@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   BookOpen,
@@ -8,9 +8,36 @@ import {
   ChevronRight,
   ExternalLink,
 } from "lucide-react";
+import { url } from "@/url"; // Make sure to import your URL config
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+
+  // 1. Add state to hold the dynamic footer data
+  const [footerData, setFooterData] = useState({
+    contact_email: "support@paperuno.com", // Default fallback
+    contact_phone: "+1 (555) 123-4567", // Default fallback
+    contact_address: "123 Academic Way,\nSuite 400, Boston, MA 02110", // Default fallback
+  });
+
+  // 2. Fetch the data from the backend when the footer loads
+  useEffect(() => {
+    fetch(`${url}/public/global-settings`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.settings) {
+          setFooterData({
+            contact_email:
+              data.settings.contact_email || "support@paperuno.com",
+            contact_phone: data.settings.contact_phone || "+1 (555) 123-4567",
+            contact_address:
+              data.settings.contact_address ||
+              "123 Academic Way,\nSuite 400, Boston, MA 02110",
+          });
+        }
+      })
+      .catch((err) => console.error("Footer fetch error", err));
+  }, []);
 
   return (
     <footer className="border-t border-border/50 bg-gradient-to-b from-card/50 to-background pt-16 pb-8">
@@ -97,30 +124,31 @@ export default function Footer() {
             </h4>
             <ul className="space-y-4 text-sm">
               <li className="flex items-start gap-3 group">
-                <Mail className="h-4 w-4 text-primary/70 mt-0.5 group-hover:text-primary transition-colors" />
+                <Mail className="h-4 w-4 text-primary/70 mt-0.5 group-hover:text-primary transition-colors shrink-0" />
                 <span className="text-muted-foreground group-hover:text-foreground transition-colors">
-                  support@paperuno.com
+                  {/* 3. Replaced static email */}
+                  {footerData.contact_email}
                 </span>
               </li>
               <li className="flex items-start gap-3 group">
-                <Phone className="h-4 w-4 text-primary/70 mt-0.5 group-hover:text-primary transition-colors" />
+                <Phone className="h-4 w-4 text-primary/70 mt-0.5 group-hover:text-primary transition-colors shrink-0" />
                 <span className="text-muted-foreground group-hover:text-foreground transition-colors">
-                  +1 (555) 123-4567
+                  {/* 3. Replaced static phone */}
+                  {footerData.contact_phone}
                 </span>
               </li>
               <li className="flex items-start gap-3 group">
-                <MapPin className="h-4 w-4 text-primary/70 mt-0.5 group-hover:text-primary transition-colors" />
-                <span className="text-muted-foreground group-hover:text-foreground transition-colors">
-                  123 Academic Way,
-                  <br />
-                  Suite 400, Boston, MA 02110
+                <MapPin className="h-4 w-4 text-primary/70 mt-0.5 group-hover:text-primary transition-colors shrink-0" />
+                {/* 3. Replaced static address and added whitespace-pre-wrap to handle line breaks from the Textarea */}
+                <span className="text-muted-foreground group-hover:text-foreground transition-colors whitespace-pre-wrap">
+                  {footerData.contact_address}
                 </span>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="pt-6 flex flex-col md:flex-row items-center justify-between gap-4 border-t border-border/30">
           <p className="text-xs text-muted-foreground/70">
             © {currentYear} Indus Academic Press. All rights reserved.
           </p>

@@ -81,6 +81,7 @@ import InitialAuthCheck from "./components/InitialCheckout";
 
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
+import GlobalSettingsPage from "./pages/GlobalSettingsPage";
 
 const queryClient = new QueryClient();
 
@@ -306,6 +307,10 @@ const App = () => (
                       element={<PublishPapers />}
                     />
                   </Route>
+                  <Route
+                    path="/publisher/settings"
+                    element={<GlobalSettingsPage />}
+                  />
 
                   {/* MANAGER */}
                   <Route

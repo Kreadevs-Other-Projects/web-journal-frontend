@@ -1002,6 +1002,14 @@ export default function PublisherDashboard() {
             >
               <Plus className="h-4 w-4" /> Create Journal
             </Button>
+            <Button
+              onClick={() => navigate("/publisher/settings")}
+              size="sm"
+              variant="secondary"
+              className="gap-1.5"
+            >
+              <Globe className="h-4 w-4" /> Edit Footer Settings
+            </Button>
           </div>
         </div>
 
