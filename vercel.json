@@ -1,31 +1,31 @@
 {
   "rewrites": [
     {
-      "source": "/sitemap.xml",
+      "source": "sitemap.xml",
       "destination": "https://web-journal-server.vercel.app/sitemap.xml"
     },
     {
-      "source": "/sitemap-pages.xml",
+      "source": "sitemap-pages.xml",
       "destination": "https://web-journal-server.vercel.app/sitemap-pages.xml"
     },
     {
-      "source": "/sitemap-journals.xml",
+      "source": "sitemap-journals.xml",
       "destination": "https://web-journal-server.vercel.app/sitemap-journals.xml"
     },
     {
-      "source": "/sitemap-articles-:page.xml",
+      "source": "sitemap-articles-:page.xml",
       "destination": "https://web-journal-server.vercel.app/sitemap-articles-:page.xml"
     },
     {
-      "source": "/robots.txt",
+      "source": "robots.txt",
       "destination": "https://web-journal-server.vercel.app/robots.txt"
     },
     {
-      "source": "/google:code.html",
+      "source": "google:code.html",
       "destination": "https://web-journal-server.vercel.app/google:code.html"
     },
     {
-      "source": "/(.*)",
+      "source": "(.*)",
       "destination": "/index.html"
     }
   ]
