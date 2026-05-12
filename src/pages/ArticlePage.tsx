@@ -15,6 +15,8 @@ import {
   Hash,
   ChevronDown,
   ChevronUp,
+  ExternalLink,
+  Quote,
 } from "lucide-react";
 import { url } from "@/url";
 import { getFileUrl } from "@/lib/utils";
@@ -86,6 +88,7 @@ export default function ArticlePage() {
   const [htmlLoading, setHtmlLoading] = useState(false);
   const [showArticleInfo, setShowArticleInfo] = useState(false);
   const [resolvedPaperId, setResolvedPaperId] = useState<string | null>(null);
+  const [citations, setCitations] = useState<number | null>(null);
   const [latestJournals, setLatestJournals] = useState<
     {
       id: string;
@@ -131,7 +134,16 @@ export default function ArticlePage() {
     fetchPaper();
   }, [paperId, acronym, slug]);
 
-  // Option B: fetch HTML on-demand for papers without cached html_content
+  useEffect(() => {
+    if (!article?.doi) return;
+    fetch(`${url}/crossref/citations?doi=${encodeURIComponent(article.doi)}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success) setCitations(data.citations ?? 0);
+      })
+      .catch(() => {});
+  }, [article?.doi]);
+
   useEffect(() => {
     if (!article || htmlContent !== null || !resolvedPaperId) return;
     const ext = article.file_url?.toLowerCase();
@@ -368,17 +380,37 @@ export default function ArticlePage() {
             <Card className="glass-card">
               <CardContent className="p-4 space-y-3">
                 {article.doi && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <Hash className="h-4 w-4 text-muted-foreground shrink-0" />
-                    <span className="text-muted-foreground">DOI:</span>
-                    <a
-                      href={`https://doi.org/${article.doi}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary hover:underline break-all"
-                    >
-                      https://doi.org/{article.doi}
-                    </a>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <a
+                        href={`https://doi.org/${article.doi}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 px-3 py-1 rounded-full text-xs font-mono hover:bg-amber-500/20 transition-colors"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                        DOI: {article.doi}
+                      </a>
+                      <a
+                        href={`https://search.crossref.org/?q=${encodeURIComponent(article.doi)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        Search Crossref ↗
+                      </a>
+                    </div>
+                    {citations !== null && (
+                      <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                        <Quote className="h-4 w-4 shrink-0" />
+                        <span>
+                          {citations === 0
+                            ? "No citations yet"
+                            : `Cited ${citations} time${citations !== 1 ? "s" : ""}`}
+                        </span>
+                        <span className="text-xs opacity-60">via Crossref</span>
+                      </div>
+                    )}
                   </div>
                 )}
 

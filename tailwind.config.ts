@@ -1,8 +1,15 @@
 import type { Config } from "tailwindcss";
+import tailwindcssAnimate from "tailwindcss-animate";
+import typography from "@tailwindcss/typography";
 
 export default {
   darkMode: ["class"],
-  content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
+  content: [
+    "./pages/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
+  ],
   prefix: "",
   theme: {
     container: {
@@ -76,14 +83,19 @@ export default {
         "glow-lg": "0 0 60px -15px hsl(var(--primary) / 0.4)",
         elevated: "0 20px 40px -15px hsl(var(--foreground) / 0.1)",
         "elevated-lg": "0 30px 60px -20px hsl(var(--foreground) / 0.15)",
-        glass: "0 4px 30px hsl(var(--foreground) / 0.1), inset 0 1px 0 hsl(0 0% 100% / 0.1)",
+        glass:
+          "0 4px 30px hsl(var(--foreground) / 0.1), inset 0 1px 0 hsl(0 0% 100% / 0.1)",
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "gradient-conic": "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
-        "gradient-primary": "linear-gradient(135deg, hsl(var(--primary)), hsl(199 89% 48%))",
-        "gradient-accent": "linear-gradient(135deg, hsl(var(--accent)), hsl(38 92% 60%))",
-        "gradient-dark": "linear-gradient(135deg, hsl(222 47% 8%), hsl(222 47% 15%))",
+        "gradient-conic":
+          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
+        "gradient-primary":
+          "linear-gradient(135deg, hsl(var(--primary)), hsl(199 89% 48%))",
+        "gradient-accent":
+          "linear-gradient(135deg, hsl(var(--accent)), hsl(38 92% 60%))",
+        "gradient-dark":
+          "linear-gradient(135deg, hsl(222 47% 8%), hsl(222 47% 15%))",
         "mesh-pattern": `
           radial-gradient(at 40% 20%, hsl(217 91% 60% / 0.1) 0px, transparent 50%),
           radial-gradient(at 80% 0%, hsl(43 96% 56% / 0.1) 0px, transparent 50%),
@@ -98,7 +110,10 @@ export default {
           to: { height: "var(--radix-accordion-content-height)", opacity: "1" },
         },
         "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)", opacity: "1" },
+          from: {
+            height: "var(--radix-accordion-content-height)",
+            opacity: "1",
+          },
           to: { height: "0", opacity: "0" },
         },
         "fade-in": {
@@ -180,5 +195,5 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [tailwindcssAnimate, typography],
 } satisfies Config;

@@ -144,6 +144,12 @@ export default function Footer() {
             >
               Terms of Service
             </Link>
+            <Link
+              to="/sitemap"
+              className="text-muted-foreground/70 hover:text-foreground transition-colors"
+            >
+              Sitemap
+            </Link>
           </div>
         </div>
       </div>

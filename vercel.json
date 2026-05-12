@@ -1,6 +1,30 @@
 {
   "rewrites": [
     {
+      "source": "/sitemap.xml",
+      "destination": "https://web-journal-tvwq.onrender.com/sitemap.xml"
+    },
+    {
+      "source": "/sitemap-pages.xml",
+      "destination": "https://web-journal-tvwq.onrender.com/sitemap-pages.xml"
+    },
+    {
+      "source": "/sitemap-journals.xml",
+      "destination": "https://web-journal-tvwq.onrender.com/sitemap-journals.xml"
+    },
+    {
+      "source": "/sitemap-articles-:page.xml",
+      "destination": "https://web-journal-tvwq.onrender.com/sitemap-articles-:page.xml"
+    },
+    {
+      "source": "/robots.txt",
+      "destination": "https://web-journal-tvwq.onrender.com/robots.txt"
+    },
+    {
+      "source": "/google:code.html",
+      "destination": "https://web-journal-tvwq.onrender.com/google:code.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

@@ -4,11 +4,36 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Paperuno — Scholarly Publishing</title>
+    <!-- Google Search Console Verification -->
+    <meta
+      name="google-site-verification"
+      content="%VITE_GOOGLE_SITE_VERIFICATION%"
+    />
     <script>
       (function () {
         var theme = localStorage.getItem("theme") || "light";
         if (theme === "dark") document.documentElement.classList.add("dark");
       })();
+    </script>
+    <!-- Google Analytics -->
+    <script>
+      if (
+        "%VITE_GA_MEASUREMENT_ID%" &&
+        "%VITE_GA_MEASUREMENT_ID%" !== "undefined" &&
+        "%VITE_GA_MEASUREMENT_ID%" !== "%VITE_GA_MEASUREMENT_ID%"
+      ) {
+        var gaScript = document.createElement("script");
+        gaScript.async = true;
+        gaScript.src =
+          "https://www.googletagmanager.com/gtag/js?id=%VITE_GA_MEASUREMENT_ID%";
+        document.head.appendChild(gaScript);
+        window.dataLayer = window.dataLayer || [];
+        function gtag() {
+          dataLayer.push(arguments);
+        }
+        gtag("js", new Date());
+        gtag("config", "%VITE_GA_MEASUREMENT_ID%");
+      }
     </script>
   </head>
 

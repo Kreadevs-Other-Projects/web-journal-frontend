@@ -32,6 +32,9 @@ import {
   X,
   Plus,
   Lock,
+  CheckCircle,
+  AlertCircle,
+  Loader2,
 } from "lucide-react";
 import RichTextEditor from "@/components/RichTextEditor";
 import { FieldHint } from "@/components/FieldHint";
@@ -161,6 +164,42 @@ export default function CreateJournal() {
   const [logo, setLogo] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const logoRef = useRef<HTMLInputElement>(null);
+
+  // ISSN Crossref verification
+  const [issnVerifying, setIssnVerifying] = useState(false);
+  const [issnVerified, setIssnVerified] = useState(false);
+  const [issnCrossrefTitle, setIssnCrossrefTitle] = useState("");
+  const [issnWarning, setIssnWarning] = useState("");
+
+  const verifyISSN = async (issn: string) => {
+    const raw = issn.replace(/[^0-9Xx]/gi, "");
+    if (raw.length !== 8) return;
+    setIssnVerifying(true);
+    setIssnVerified(false);
+    setIssnCrossrefTitle("");
+    setIssnWarning("");
+    try {
+      const res = await fetch(`${url}/crossref/journal/${raw}`);
+      const data = await res.json();
+      if (data.success && data.journal?.title) {
+        setIssnVerified(true);
+        setIssnCrossrefTitle(data.journal.title);
+        if (
+          journal.title.trim() &&
+          data.journal.title.toLowerCase() !==
+            journal.title.trim().toLowerCase()
+        ) {
+          setIssnWarning(
+            `This ISSN belongs to "${data.journal.title}" in Crossref. Please verify this is correct.`,
+          );
+        }
+      }
+    } catch {
+      // silently ignore — ISSN not in Crossref is ok for new journals
+    } finally {
+      setIssnVerifying(false);
+    }
+  };
 
   const fetchJournalCategories = () => {
     fetch(`${url}/journal-categories`)
@@ -490,28 +529,55 @@ export default function CreateJournal() {
                 </div>
                 <div className="space-y-1">
                   <Label>ISSN</Label>
-                  <Input
-                    value={journal.issn}
-                    onChange={(e) => {
-                      const cleaned = e.target.value
-                        .replace(/[^0-9Xx]/g, "")
-                        .toUpperCase();
-                      const formatted =
-                        cleaned.length <= 4
-                          ? cleaned
-                          : cleaned.slice(0, 4) + "-" + cleaned.slice(4, 8);
-                      updateJournal("issn", formatted);
-                    }}
-                    placeholder="0000-000X"
-                    maxLength={9}
-                    className={fieldErrors["issn"] ? "border-destructive" : ""}
-                  />
+                  <div className="relative">
+                    <Input
+                      value={journal.issn}
+                      onChange={(e) => {
+                        const cleaned = e.target.value
+                          .replace(/[^0-9Xx]/g, "")
+                          .toUpperCase();
+                        const formatted =
+                          cleaned.length <= 4
+                            ? cleaned
+                            : cleaned.slice(0, 4) + "-" + cleaned.slice(4, 8);
+                        updateJournal("issn", formatted);
+                        setIssnVerified(false);
+                        setIssnCrossrefTitle("");
+                        setIssnWarning("");
+                      }}
+                      onBlur={(e) => verifyISSN(e.target.value)}
+                      placeholder="0000-000X"
+                      maxLength={9}
+                      className={
+                        fieldErrors["issn"] ? "border-destructive" : ""
+                      }
+                    />
+                    {issnVerifying && (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground absolute right-3 top-1/2 -translate-y-1/2" />
+                    )}
+                  </div>
                   {fieldErrors["issn"] ? (
                     <p className="text-xs text-destructive mt-1">
                       {fieldErrors["issn"]}
                     </p>
                   ) : (
                     <FieldHint text="Format: XXXX-XXXX · Last character can be a number or X" />
+                  )}
+                  {issnVerified && !issnWarning && (
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0" />
+                      <span className="text-xs text-green-600 dark:text-green-400">
+                        Verified in Crossref: {issnCrossrefTitle}
+                      </span>
+                    </div>
+                  )}
+                  {issnWarning && (
+                    <div className="flex items-start gap-1.5 mt-1">
+                      <AlertCircle className="h-3.5 w-3.5 text-yellow-500 shrink-0 mt-0.5" />
+                      <span className="text-xs text-yellow-600 dark:text-yellow-400">
+                        {issnWarning}
+                      </span>
+                    </div>
                   )}
                 </div>
                 <div className="space-y-1">

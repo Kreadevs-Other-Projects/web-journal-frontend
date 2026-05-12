@@ -13,10 +13,23 @@ export default defineConfig(({ mode }) => ({
         changeOrigin: true,
         secure: false,
       },
+      // Proxy sitemap/robots/GSC verification files to backend in dev
+      "^/sitemap.*\\.xml": {
+        target: "http://localhost:5000",
+        changeOrigin: true,
+      },
+      "/robots.txt": {
+        target: "http://localhost:5000",
+        changeOrigin: true,
+      },
+      "^/google.+\\.html": {
+        target: "http://localhost:5000",
+        changeOrigin: true,
+      },
     },
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(
-    Boolean
+    Boolean,
   ),
   resolve: {
     alias: {

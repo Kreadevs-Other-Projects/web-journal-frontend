@@ -21,6 +21,7 @@ import ArticleRedirect from "./pages/ArticleRedirect";
 import ArticlePage from "./pages/ArticlePage";
 import Archive from "./pages/Archive";
 import ApplyReviewer from "./pages/ApplyReviewer";
+import SitemapPage from "./pages/SitemapPage";
 
 import AuthorDashboard from "./pages/author/AuthorDashboard";
 import SubmitPaper from "./pages/author/SubmitPaper";
@@ -117,6 +118,7 @@ const App = () => (
                         path="/apply-reviewer"
                         element={<ApplyReviewer />}
                       />
+                      <Route path="/sitemap" element={<SitemapPage />} />
                     </Route>
                   </Route>
 

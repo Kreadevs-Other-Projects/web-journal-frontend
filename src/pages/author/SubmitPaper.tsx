@@ -35,6 +35,7 @@ import {
   ChevronUp,
   AlertTriangle,
   GripVertical,
+  Search,
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PageTransition } from "@/components/AnimationWrappers";
@@ -123,6 +124,11 @@ export default function SubmitPaper() {
     oa_policy: null,
     peer_review_policy: null,
   });
+
+  // DOI lookup
+  const [doiInput, setDoiInput] = useState("");
+  const [doiLoading, setDoiLoading] = useState(false);
+  const [doiError, setDoiError] = useState("");
 
   // APC info
   const [apcFee, setApcFee] = useState<number | null>(null);
@@ -237,6 +243,46 @@ export default function SubmitPaper() {
 
   const removeRow = <T,>(arr: T[], setter: (v: T[]) => void, idx: number) => {
     setter(arr.filter((_, i) => i !== idx));
+  };
+
+  const handleDOILookup = async () => {
+    if (!doiInput.trim()) return;
+    setDoiLoading(true);
+    setDoiError("");
+    try {
+      const cleanDoi = doiInput.replace(/^https?:\/\/doi\.org\//i, "").trim();
+      const res = await fetch(
+        `${url}/crossref/doi?doi=${encodeURIComponent(cleanDoi)}`,
+      );
+      const data = await res.json();
+      if (data.success && data.metadata) {
+        const m = data.metadata;
+        if (m.title) setTitle(m.title);
+        if (m.abstract) setAbstract(m.abstract);
+        if (m.keywords?.length) setKeywords(m.keywords.slice(0, 5));
+        if (m.authors?.length) {
+          setAuthorDetails(
+            m.authors.map((a: any) => ({
+              name: a.name,
+              email: "",
+              affiliation: a.affiliation || "",
+              orcid: a.orcid || "",
+            })),
+          );
+        }
+        toast({
+          title: "Metadata imported",
+          description:
+            "Form fields filled from Crossref. Please review and correct if needed.",
+        });
+      } else {
+        setDoiError(data.message || "DOI not found in Crossref");
+      }
+    } catch {
+      setDoiError("Failed to reach Crossref API");
+    } finally {
+      setDoiLoading(false);
+    }
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -600,6 +646,47 @@ export default function SubmitPaper() {
                 </div>
               </div>
             )}
+
+            {/* DOI Import */}
+            <div className="border rounded-lg p-4 bg-muted/20">
+              <div className="flex items-center gap-2 mb-1.5">
+                <Search className="h-4 w-4 text-primary" />
+                <span className="text-sm font-semibold">
+                  Import from Existing DOI
+                </span>
+                <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
+                  optional
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground mb-3">
+                If your paper is already published elsewhere, enter its DOI to
+                auto-fill the form.
+              </p>
+              <div className="flex gap-2">
+                <Input
+                  value={doiInput}
+                  onChange={(e) => setDoiInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleDOILookup()}
+                  placeholder="e.g. 10.1000/xyz123 or https://doi.org/10.1000/xyz123"
+                  className="flex-1 text-sm"
+                />
+                <Button
+                  type="button"
+                  onClick={handleDOILookup}
+                  disabled={doiLoading || !doiInput.trim()}
+                  size="sm"
+                >
+                  {doiLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    "Lookup"
+                  )}
+                </Button>
+              </div>
+              {doiError && (
+                <p className="text-xs text-destructive mt-1.5">{doiError}</p>
+              )}
+            </div>
 
             {/* 1. Select Journal */}
             <div>
@@ -1753,7 +1840,7 @@ export default function SubmitPaper() {
               <DialogTitle>Author Guidelines</DialogTitle>
             </DialogHeader>
             <div className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
-              {guidelines || "No guidelines available."}
+              {renderPolicyContent(guidelines || "No guidelines available.")}
             </div>
             <DialogFooter>
               <Button
