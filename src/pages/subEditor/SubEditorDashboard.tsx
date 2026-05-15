@@ -67,6 +67,7 @@ import { url } from "@/url";
 import { getFileUrl } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { PaperTimeline } from "@/components/PaperTimeline";
+import { ReviewCommentDisplay } from "@/components/ReviewCommentDisplay";
 
 interface PaperVersion {
   id: string;
@@ -1711,25 +1712,12 @@ export default function SubEditorDashboard() {
                           </span>
                         )}
                       </div>
-                      {reviewer.comments && (
-                        <div className="bg-muted/50 rounded p-3">
-                          <p className="text-xs text-muted-foreground mb-1 font-medium">
-                            Comments for Authors:
-                          </p>
-                          <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                            {reviewer.comments}
-                          </p>
-                        </div>
-                      )}
-                      {reviewer.confidential_comments && (
-                        <div className="bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800/40 rounded p-3 mt-2">
-                          <p className="text-xs font-semibold text-purple-700 dark:text-purple-300 mb-1 flex items-center gap-1">
-                            <Lock className="h-3 w-3" /> Confidential (editors only)
-                          </p>
-                          <p className="text-sm text-purple-900 dark:text-purple-100 whitespace-pre-wrap">
-                            {reviewer.confidential_comments}
-                          </p>
-                        </div>
+                      {(reviewer.comments || reviewer.confidential_comments) && (
+                        <ReviewCommentDisplay
+                          comments={reviewer.comments}
+                          confidentialComments={reviewer.confidential_comments}
+                          showConfidential={true}
+                        />
                       )}
                     </>
                   ) : (

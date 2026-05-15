@@ -12,7 +12,8 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/RichTextEditor";
+import { ReviewCommentDisplay } from "@/components/ReviewCommentDisplay";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
@@ -883,12 +884,11 @@ export default function ReviewerDashboard() {
 
                     {selectedPaper.comments && (
                       <div className="space-y-2">
-                        <Label className="text-sm font-medium">
-                          Comments Submitted
-                        </Label>
-                        <p className="text-sm text-muted-foreground bg-muted/30 p-4 rounded-lg whitespace-pre-wrap">
-                          {selectedPaper.comments}
-                        </p>
+                        <Label className="text-sm font-medium">Comments Submitted</Label>
+                        <ReviewCommentDisplay
+                          comments={selectedPaper.comments}
+                          showConfidential={false}
+                        />
                       </div>
                     )}
 
@@ -933,13 +933,11 @@ export default function ReviewerDashboard() {
                           <Label htmlFor="comments">
                             Comments for Authors *
                           </Label>
-                          <Textarea
-                            id="comments"
+                          <RichTextEditor
                             value={comments}
-                            onChange={(e) => setComments(e.target.value)}
+                            onChange={setComments}
                             placeholder="Provide detailed feedback for the authors..."
-                            className="min-h-[150px] input-glow"
-                            required
+                            minHeight="150px"
                           />
                           <p className="text-xs text-muted-foreground">
                             These comments will be shared with the authors.
@@ -953,14 +951,11 @@ export default function ReviewerDashboard() {
                               (optional)
                             </span>
                           </Label>
-                          <Textarea
-                            id="confidentialComments"
+                          <RichTextEditor
                             value={confidentialComments}
-                            onChange={(e) =>
-                              setConfidentialComments(e.target.value)
-                            }
+                            onChange={setConfidentialComments}
                             placeholder="Add comments for the editorial team only — not visible to authors..."
-                            className="min-h-[100px] input-glow"
+                            minHeight="100px"
                           />
                           <p className="text-xs text-muted-foreground">
                             These comments are only visible to Associate Editor

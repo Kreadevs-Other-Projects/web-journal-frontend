@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
+import { ReviewCommentDisplay } from "@/components/ReviewCommentDisplay";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { PageTransition } from "@/components/AnimationWrappers";
 import { Button } from "@/components/ui/button";
@@ -124,9 +125,10 @@ export default function ReviewDetail() {
 
               <div>
                 <p className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide">Comments</p>
-                <div className="text-sm bg-muted/30 p-4 rounded-lg whitespace-pre-wrap">
-                  {review.comments || "No comments provided."}
-                </div>
+                <ReviewCommentDisplay
+                  comments={review.comments}
+                  showConfidential={false}
+                />
               </div>
             </CardContent>
           </Card>
