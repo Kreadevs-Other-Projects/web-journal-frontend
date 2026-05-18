@@ -40,6 +40,7 @@ import {
   XCircle,
   Lock,
   MessageSquare,
+  ChevronRight,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { url } from "@/url";
@@ -185,6 +186,18 @@ export default function CEPaperViewPage() {
   const [decisionPassword, setDecisionPassword] = useState("");
   const [submittingDecision, setSubmittingDecision] = useState(false);
   const [paperDecided, setPaperDecided] = useState(false);
+
+  // Feedback detail modal
+  const [feedbackModal, setFeedbackModal] = useState<{
+    type: "ae" | "reviewer";
+    name: string;
+    decision?: string | null;
+    comments?: string | null;
+    confidentialComments?: string | null;
+    versionNumber?: number | null;
+    decidedAt?: string | null;
+    index?: number;
+  } | null>(null);
 
   // Override
   const [overrideOpen, setOverrideOpen] = useState(false);
@@ -600,10 +613,17 @@ export default function CEPaperViewPage() {
                         className="h-7 w-7 p-0"
                         onClick={() => {
                           const fileUrl = displayFileUrl || "";
-                          const ext = fileUrl.split(".").pop()?.split("?")[0]?.toLowerCase() || "";
+                          const ext =
+                            fileUrl
+                              .split(".")
+                              .pop()
+                              ?.split("?")[0]
+                              ?.toLowerCase() || "";
                           const a = document.createElement("a");
                           a.href = getFileUrl(fileUrl);
-                          a.download = ext ? `${displayPaper.title}.${ext}` : displayPaper.title;
+                          a.download = ext
+                            ? `${displayPaper.title}.${ext}`
+                            : displayPaper.title;
                           document.body.appendChild(a);
                           a.click();
                           document.body.removeChild(a);
@@ -1005,148 +1025,148 @@ export default function CEPaperViewPage() {
               </CardContent>
             </Card>
 
-            {/* AE + Reviewer Feedback */}
+            {/* Editorial Feedback */}
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm">Editorial Feedback</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4 text-sm">
-                {/* AE info */}
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
+              <CardContent className="space-y-3 text-sm">
+                {/* AE Row */}
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">
                     Associate Editor
                   </p>
-                  <p className="font-medium">
-                    {displayPaper.current_ae_name || "Unassigned"}
-                  </p>
-                  {aeHistory.length > 0 ? (
-                    <div className="mt-2 space-y-2">
-                      {aeHistory.map((ae, i) => (
-                        <div
-                          key={i}
-                          className="rounded-md border border-border/50 p-3 space-y-1.5"
-                        >
-                          <div className="flex items-center justify-between">
-                            <p className="font-medium text-xs">{ae.username}</p>
-                            {ae.version_number && (
-                              <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                                v{ae.version_number}
-                              </span>
-                            )}
-                          </div>
+                  {displayPaper.current_ae_name ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const latestAe =
+                          aeHistory.length > 0
+                            ? aeHistory[aeHistory.length - 1]
+                            : null;
+                        setFeedbackModal({
+                          type: "ae",
+                          name: displayPaper.current_ae_name!,
+                          decision:
+                            latestAe?.decision || displayPaper.ae_decision,
+                          comments: latestAe?.comments,
+                          confidentialComments: latestAe?.confidential_comments,
+                          decidedAt:
+                            latestAe?.decided_at || displayPaper.ae_decided_at,
+                          versionNumber: latestAe?.version_number,
+                        });
+                      }}
+                      className="w-full flex items-center justify-between p-2.5 rounded-lg border border-border/60 hover:border-primary/40 hover:bg-muted/40 transition-all text-left group"
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary">
+                          {displayPaper.current_ae_name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium">
+                            {displayPaper.current_ae_name}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground">
+                            Associate Editor
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {displayPaper.ae_decision && (
                           <Badge
                             className={`text-[10px] h-4 px-1.5 ${
-                              AE_DECISION_COLORS[ae.decision] ||
+                              AE_DECISION_COLORS[displayPaper.ae_decision] ||
                               "bg-muted text-muted-foreground"
                             }`}
                           >
-                            {ae.decision}
+                            {displayPaper.ae_decision}
                           </Badge>
-                          {ae.comments ? (
-                            <p className="text-xs text-muted-foreground leading-relaxed italic">
-                              "{ae.comments}"
-                            </p>
-                          ) : ae.decision !== "approve" ? (
-                            <p className="text-xs text-muted-foreground italic">
-                              No comment provided
-                            </p>
-                          ) : null}
-                          {ae.decided_at && (
-                            <p className="text-[10px] text-muted-foreground">
-                              {formatDate(ae.decided_at)}
-                            </p>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  ) : displayPaper.ae_decision ? (
-                    <div className="mt-1.5">
-                      <Badge
-                        className={
-                          AE_DECISION_COLORS[displayPaper.ae_decision] ||
-                          "bg-muted text-muted-foreground"
-                        }
-                      >
-                        {displayPaper.ae_decision}
-                      </Badge>
-                    </div>
-                  ) : null}
+                        )}
+                        <ChevronRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
+                      </div>
+                    </button>
+                  ) : (
+                    <p className="text-xs text-muted-foreground italic px-1">
+                      Unassigned
+                    </p>
+                  )}
                 </div>
 
-                {/* Reviewer feedback from decision history */}
-                {reviewerHistory.length > 0 && (
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">
-                      Reviewer Feedback
+                {/* Reviewers */}
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                    Reviewers
+                  </p>
+                  {(reviewerHistory.length > 0
+                    ? reviewerHistory
+                    : displayPaper.reviewers
+                  ).length === 0 ? (
+                    <p className="text-xs text-muted-foreground italic px-1">
+                      No reviewers assigned
                     </p>
-                    <div className="space-y-3">
-                      {reviewerHistory.map((r, i) => (
-                        <div
+                  ) : (
+                    <div className="space-y-1.5">
+                      {(reviewerHistory.length > 0
+                        ? reviewerHistory
+                        : displayPaper.reviewers
+                      ).map((r: any, i: number) => (
+                        <button
                           key={i}
-                          className="rounded-md border border-border/50 p-3 space-y-1.5"
+                          type="button"
+                          onClick={() =>
+                            setFeedbackModal({
+                              type: "reviewer",
+                              name: r.username || r.name || `Reviewer ${i + 1}`,
+                              decision: r.decision,
+                              comments: r.comments,
+                              confidentialComments: r.confidential_comments,
+                              versionNumber: r.version_number,
+                              decidedAt: r.decided_at,
+                              index: i,
+                            })
+                          }
+                          className="w-full flex items-center justify-between p-2.5 rounded-lg border border-border/60 hover:border-primary/40 hover:bg-muted/40 transition-all text-left group"
                         >
-                          <div className="flex items-center justify-between">
-                            <p className="font-medium text-xs">
-                              Reviewer {i + 1} — {r.username}
-                            </p>
-                            {r.version_number && (
-                              <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                                v{r.version_number}
+                          <div className="flex items-center gap-2">
+                            <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center text-xs font-semibold text-muted-foreground">
+                              {i + 1}
+                            </div>
+                            <div>
+                              <p className="text-xs font-medium">
+                                Reviewer {i + 1}
+                              </p>
+                              {r.version_number && (
+                                <p className="text-[10px] text-muted-foreground">
+                                  v{r.version_number}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {r.decision ? (
+                              <Badge
+                                className={`text-[10px] h-4 px-1.5 ${
+                                  r.decision === "accepted"
+                                    ? "bg-green-500/10 text-green-600 border-green-500/30"
+                                    : r.decision?.includes("revision")
+                                      ? "bg-yellow-500/10 text-yellow-600 border-yellow-500/30"
+                                      : "bg-red-500/10 text-red-600 border-red-500/30"
+                                }`}
+                              >
+                                {r.decision}
+                              </Badge>
+                            ) : (
+                              <span className="text-[10px] text-muted-foreground">
+                                Pending
                               </span>
                             )}
+                            <ChevronRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
                           </div>
-                          <Badge
-                            className={`text-[10px] h-4 px-1.5 ${
-                              r.decision === "accepted"
-                                ? "bg-green-500/10 text-green-600 border-green-500/30"
-                                : r.decision?.includes("revision")
-                                  ? "bg-yellow-500/10 text-yellow-600 border-yellow-500/30"
-                                  : "bg-red-500/10 text-red-600 border-red-500/30"
-                            }`}
-                          >
-                            {r.decision}
-                          </Badge>
-                          {(r.comments || r.confidential_comments) && (
-                            <ReviewCommentDisplay
-                              comments={r.comments}
-                              confidentialComments={r.confidential_comments}
-                              showConfidential={true}
-                            />
-                          )}
-                          {r.decided_at && (
-                            <p className="text-[10px] text-muted-foreground">
-                              {formatDate(r.decided_at)}
-                            </p>
-                          )}
-                        </div>
+                        </button>
                       ))}
                     </div>
-                  </div>
-                )}
-
-                {/* Fallback: show basic reviewer list if no detailed history */}
-                {reviewerHistory.length === 0 &&
-                  displayPaper.reviewers.length > 0 && (
-                    <div>
-                      <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">
-                        Reviewers
-                      </p>
-                      <div className="space-y-1">
-                        {displayPaper.reviewers.map((r) => (
-                          <div
-                            key={r.id}
-                            className="flex items-center justify-between text-xs"
-                          >
-                            <span className="font-medium">{r.name}</span>
-                            <span className="text-muted-foreground capitalize">
-                              {r.status}
-                              {r.decision ? ` · ${r.decision}` : ""}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
                   )}
+                </div>
               </CardContent>
             </Card>
 
@@ -1420,6 +1440,135 @@ export default function CEPaperViewPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* Feedback Detail Modal */}
+      {feedbackModal && (
+        <Dialog
+          open={!!feedbackModal}
+          onOpenChange={() => setFeedbackModal(null)}
+        >
+          <DialogContent className="max-w-lg max-h-[80vh] flex flex-col">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-base">
+                {feedbackModal.type === "ae" ? (
+                  <>
+                    <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary">
+                      {feedbackModal.name.charAt(0).toUpperCase()}
+                    </div>
+                    {feedbackModal.name}
+                    <span className="text-xs font-normal text-muted-foreground ml-1">
+                      — Associate Editor
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center text-xs font-semibold">
+                      {(feedbackModal.index ?? 0) + 1}
+                    </div>
+                    Reviewer {(feedbackModal.index ?? 0) + 1}
+                    {feedbackModal.versionNumber && (
+                      <span className="text-xs font-mono bg-muted px-1.5 py-0.5 rounded ml-1">
+                        v{feedbackModal.versionNumber}
+                      </span>
+                    )}
+                  </>
+                )}
+              </DialogTitle>
+            </DialogHeader>
+
+            {/* SCROLLABLE BODY */}
+            <div className="space-y-4 pt-1 overflow-y-auto pr-2 flex-1">
+              {/* Decision */}
+              {feedbackModal.decision && (
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1.5">
+                    Decision
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      className={`${
+                        feedbackModal.decision === "accepted" ||
+                        feedbackModal.decision === "approve"
+                          ? "bg-green-500/10 text-green-600 border-green-500/30"
+                          : feedbackModal.decision?.includes("revision")
+                            ? "bg-yellow-500/10 text-yellow-600 border-yellow-500/30"
+                            : "bg-red-500/10 text-red-600 border-red-500/30"
+                      } text-xs px-2 py-0.5`}
+                    >
+                      {feedbackModal.decision.replace(/_/g, " ")}
+                    </Badge>
+
+                    {feedbackModal.decidedAt && (
+                      <span className="text-xs text-muted-foreground">
+                        on {formatDate(feedbackModal.decidedAt)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Comments */}
+              {feedbackModal.comments ? (
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1.5">
+                    Comments
+                  </p>
+
+                  <div className="bg-muted/30 rounded-lg p-3 border border-border/50">
+                    {/<[a-z][\s\S]*>/i.test(feedbackModal.comments) ? (
+                      <div
+                        className="prose prose-sm dark:prose-invert max-w-none text-sm"
+                        dangerouslySetInnerHTML={{
+                          __html: DOMPurify.sanitize(feedbackModal.comments),
+                        }}
+                      />
+                    ) : (
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                        {feedbackModal.comments}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground italic">
+                  No comments provided.
+                </p>
+              )}
+
+              {/* Confidential comments */}
+              {feedbackModal.type === "reviewer" &&
+                feedbackModal.confidentialComments && (
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <Lock className="h-3.5 w-3.5 text-purple-500" />
+                      <p className="text-xs text-purple-600 dark:text-purple-400 uppercase tracking-wide font-semibold">
+                        Confidential — Editors Only
+                      </p>
+                    </div>
+
+                    <div className="bg-purple-50 dark:bg-purple-950/30 rounded-lg p-3 border border-purple-200 dark:border-purple-800">
+                      {/<[a-z][\s\S]*>/i.test(
+                        feedbackModal.confidentialComments,
+                      ) ? (
+                        <div
+                          className="prose prose-sm dark:prose-invert max-w-none text-sm text-purple-900 dark:text-purple-100"
+                          dangerouslySetInnerHTML={{
+                            __html: DOMPurify.sanitize(
+                              feedbackModal.confidentialComments,
+                            ),
+                          }}
+                        />
+                      ) : (
+                        <p className="text-sm leading-relaxed whitespace-pre-wrap text-purple-900 dark:text-purple-100">
+                          {feedbackModal.confidentialComments}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </DashboardLayout>
   );
 }

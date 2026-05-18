@@ -35,6 +35,7 @@ import ReviewDetail from "./pages/reviewer/ReviewDetail";
 import SubEditorDashboard from "./pages/subEditor/SubEditorDashboard";
 import RevisionPaper from "./pages/subEditor/RevisionPaper";
 import AEAssignReviewerPage from "./pages/subEditor/AEAssignReviewerPage";
+import RequestRevisionPage from "./pages/subEditor/RequestRevisionPage";
 
 import ChiefEditorDashboard from "./pages/chiefEditor/ChiefEditorDashboard";
 import ReviewedPapers from "./pages/chiefEditor/ReviewedPapers";
@@ -204,6 +205,10 @@ const App = () => (
                     <Route
                       path="/sub-editor/papers/:paperId/assign-reviewer"
                       element={<AEAssignReviewerPage />}
+                    />
+                    <Route
+                      path="/sub-editor/papers/:paperId/request-revision"
+                      element={<RequestRevisionPage />}
                     />
                   </Route>
 

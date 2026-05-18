@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -98,6 +99,7 @@ interface ExistingDecision {
 
 export default function RevisionPaper() {
   const { user, token } = useAuth();
+  const navigate = useNavigate();
   const { toast } = useToast();
 
   const [reviews, setReviews] = useState<SubmittedReview[]>([]);
@@ -751,7 +753,7 @@ export default function RevisionPaper() {
                                       </div>
                                       {latest.comments ? (
                                         <p className="text-muted-foreground line-clamp-2 text-xs">
-                                          {latest.comments}
+                                          {renderPolicyContent(latest.comments)}
                                         </p>
                                       ) : (
                                         <p className="text-muted-foreground italic text-xs">
@@ -838,9 +840,10 @@ export default function RevisionPaper() {
                                     variant="outline"
                                     className="flex-1 gap-1.5 border-amber-500/50 text-amber-500 hover:bg-amber-500/10"
                                     onClick={() => {
-                                      setActivePaperId(r.paperId);
-                                      setPendingDecision("revision");
-                                      setDecisionModalOpen(true);
+                                      navigate(
+                                        `/sub-editor/papers/${r.paperId}/request-revision`,
+                                        { state: { paper: r } },
+                                      );
                                     }}
                                     disabled={r.paperStatus === "published"}
                                   >
