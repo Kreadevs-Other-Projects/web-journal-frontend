@@ -59,13 +59,6 @@ interface AuthorDetail {
   orcid: string;
 }
 
-interface CorrespondingAuthorDetail {
-  name: string;
-  email: string;
-  affiliation: string;
-  phone: string;
-}
-
 interface JournalPolicies {
   oa_policy: string | null;
   peer_review_policy: string | null;
@@ -90,14 +83,8 @@ export default function SubmitPaper() {
   const [authorDetails, setAuthorDetails] = useState<AuthorDetail[]>([
     { name: "", email: "", affiliation: "", orcid: "" },
   ]);
-  const [correspondingAuthor, setCorrespondingAuthor] =
-    useState<CorrespondingAuthorDetail>({
-      name: "",
-      email: "",
-      affiliation: "",
-      phone: "",
-    });
-  const [corrAuthorIsSelf, setCorrAuthorIsSelf] = useState(true);
+  const [correspondingAuthorIndex, setCorrespondingAuthorIndex] =
+    useState<number>(0);
   const [keywords, setKeywords] = useState<string[]>([]);
   const [references, setReferences] = useState<Reference[]>([
     { text: "", link: "" },
@@ -341,14 +328,24 @@ export default function SubmitPaper() {
                 .map((t: string) => ({ text: t, link: "" })),
             );
           }
-          if (data.correspondingAuthors?.[0]) {
-            const ca = data.correspondingAuthors[0];
-            setCorrespondingAuthor({
-              name: ca.name || "",
-              email: ca.email || "",
-              affiliation: ca.affiliation || "",
-              phone: ca.phone || "",
+          if (
+            data.correspondingAuthors?.[0] &&
+            Array.isArray(data.authors) &&
+            data.authors.length > 0
+          ) {
+            const corrName = (data.correspondingAuthors[0].name || "")
+              .toLowerCase()
+              .trim();
+            const matchIndex = data.authors.findIndex((a: string) => {
+              const authorName = a.toLowerCase().trim();
+              return (
+                authorName === corrName ||
+                corrName.includes(authorName.split(" ")[0] || "")
+              );
             });
+            setCorrespondingAuthorIndex(matchIndex >= 0 ? matchIndex : 0);
+          } else {
+            setCorrespondingAuthorIndex(0);
           }
           setExtractedBanner(true);
         }
@@ -386,8 +383,6 @@ export default function SubmitPaper() {
     if (!articleType) return "Please select an article type.";
     if (keywords.length === 0) return "At least one keyword is required.";
     if (keywords.length > 5) return "Maximum 5 keywords allowed.";
-    if (!corrAuthorIsSelf && !correspondingAuthor.name.trim())
-      return "Corresponding author name is required.";
     if (references.filter((r) => r.text.trim()).length > 5)
       return "Maximum 5 references allowed.";
     if (!manuscript) return "Please upload your manuscript.";
@@ -422,12 +417,18 @@ export default function SubmitPaper() {
         JSON.stringify(filledAuthors.map((a) => a.name)),
       );
 
-      // When submitter is the CA, send empty list — backend goes directly to 'submitted'
-      const correspondingAuthorList = corrAuthorIsSelf
-        ? []
-        : correspondingAuthor.name.trim()
-          ? [correspondingAuthor]
-          : [];
+      const selectedCorrespondingAuthor =
+        authorDetails[correspondingAuthorIndex];
+      const correspondingAuthorList = selectedCorrespondingAuthor?.name.trim()
+        ? [
+            {
+              name: selectedCorrespondingAuthor.name,
+              email: selectedCorrespondingAuthor.email || "",
+              affiliation: selectedCorrespondingAuthor.affiliation || "",
+              phone: "",
+            },
+          ]
+        : [];
       formData.append(
         "corresponding_author_details",
         JSON.stringify(correspondingAuthorList),
@@ -525,6 +526,22 @@ export default function SubmitPaper() {
     const [moved] = updated.splice(fromIndex, 1);
     updated.splice(dropIndex, 0, moved);
     setAuthorDetails(updated);
+
+    // Track where corresponding author moved to
+    if (correspondingAuthorIndex === fromIndex) {
+      setCorrespondingAuthorIndex(dropIndex);
+    } else if (
+      fromIndex < correspondingAuthorIndex &&
+      dropIndex >= correspondingAuthorIndex
+    ) {
+      setCorrespondingAuthorIndex((prev) => prev - 1);
+    } else if (
+      fromIndex > correspondingAuthorIndex &&
+      dropIndex <= correspondingAuthorIndex
+    ) {
+      setCorrespondingAuthorIndex((prev) => prev + 1);
+    }
+
     setDraggedIndex(null);
     setDragOverIndex(null);
   };
@@ -532,6 +549,16 @@ export default function SubmitPaper() {
   const handleDragEnd = () => {
     setDraggedIndex(null);
     setDragOverIndex(null);
+  };
+
+  const removeAuthor = (index: number) => {
+    const updated = authorDetails.filter((_, i) => i !== index);
+    setAuthorDetails(updated);
+    if (correspondingAuthorIndex === index) {
+      setCorrespondingAuthorIndex(0);
+    } else if (correspondingAuthorIndex > index) {
+      setCorrespondingAuthorIndex((prev) => prev - 1);
+    }
   };
 
   const selectedJournal = journals.find((j) => j.id === journalId);
@@ -990,9 +1017,7 @@ export default function SubmitPaper() {
                           variant="ghost"
                           size="icon"
                           className="h-7 w-7"
-                          onClick={() =>
-                            removeRow(authorDetails, setAuthorDetails, i)
-                          }
+                          onClick={() => removeAuthor(i)}
                         >
                           <X className="h-4 w-4" />
                         </Button>
@@ -1099,86 +1124,88 @@ export default function SubmitPaper() {
             </div>
 
             {/* 5. Corresponding Author */}
-            <div>
-              <Label className="mb-1.5 block">Corresponding Author</Label>
-              <div className="flex items-center gap-3 mb-3 p-3 bg-muted/30 rounded-lg">
-                <input
-                  type="checkbox"
-                  id="corrAuthorIsSelf"
-                  checked={corrAuthorIsSelf}
-                  onChange={(e) => setCorrAuthorIsSelf(e.target.checked)}
-                  className="w-4 h-4 accent-primary"
-                />
-                <label
-                  htmlFor="corrAuthorIsSelf"
-                  className="text-sm cursor-pointer select-none"
-                >
-                  I am the corresponding author
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-semibold">
+                  Corresponding Author *
                 </label>
+                <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
+                  Select one from your authors list
+                </span>
               </div>
-              {!corrAuthorIsSelf && (
-                <div className="rounded-lg border border-border p-4 space-y-3">
-                  <p className="text-xs font-semibold text-muted-foreground">
-                    Corresponding Author Details
+
+              <p className="text-xs text-muted-foreground">
+                The corresponding author handles all editorial correspondence.
+                Only one can be selected.
+              </p>
+
+              {authorDetails.filter((a) => a.name.trim()).length === 0 ? (
+                <div className="border border-dashed rounded-lg p-4 text-center">
+                  <p className="text-sm text-muted-foreground">
+                    Add authors above first, then select the corresponding
+                    author.
                   </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <Label className="text-xs mb-1 block">Full Name *</Label>
-                      <Input
-                        value={correspondingAuthor.name}
-                        onChange={(e) =>
-                          setCorrespondingAuthor((prev) => ({
-                            ...prev,
-                            name: e.target.value,
-                          }))
-                        }
-                        placeholder="Dr. Jane Smith"
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-xs mb-1 block">Email *</Label>
-                      <Input
-                        type="email"
-                        value={correspondingAuthor.email}
-                        onChange={(e) =>
-                          setCorrespondingAuthor((prev) => ({
-                            ...prev,
-                            email: e.target.value,
-                          }))
-                        }
-                        placeholder="jane@university.edu"
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-xs mb-1 block">
-                        Affiliation *
-                      </Label>
-                      <Input
-                        value={correspondingAuthor.affiliation}
-                        onChange={(e) =>
-                          setCorrespondingAuthor((prev) => ({
-                            ...prev,
-                            affiliation: e.target.value,
-                          }))
-                        }
-                        placeholder="University of Science"
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-xs mb-1 block">Phone</Label>
-                      <Input
-                        type="tel"
-                        value={correspondingAuthor.phone}
-                        onChange={(e) =>
-                          setCorrespondingAuthor((prev) => ({
-                            ...prev,
-                            phone: e.target.value,
-                          }))
-                        }
-                        placeholder="+1 (555) 000-0000"
-                      />
-                    </div>
-                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {authorDetails.map((author, i) => {
+                    if (!author.name.trim()) return null;
+                    const isSelected = correspondingAuthorIndex === i;
+                    return (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => setCorrespondingAuthorIndex(i)}
+                        className={`w-full flex items-center gap-3 p-3 rounded-lg border-2 text-left transition-all ${
+                          isSelected
+                            ? "border-primary bg-primary/5"
+                            : "border-border hover:border-primary/40 hover:bg-muted/30"
+                        }`}
+                      >
+                        <div
+                          className={`w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${
+                            isSelected
+                              ? "border-primary"
+                              : "border-muted-foreground"
+                          }`}
+                        >
+                          {isSelected && (
+                            <div className="w-2 h-2 rounded-full bg-primary" />
+                          )}
+                        </div>
+
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary flex-shrink-0">
+                          {author.name.charAt(0).toUpperCase()}
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">
+                            {author.name}
+                          </p>
+                          {author.email && (
+                            <p className="text-xs text-muted-foreground truncate">
+                              {author.email}
+                            </p>
+                          )}
+                          {author.affiliation && (
+                            <p className="text-xs text-muted-foreground truncate">
+                              {author.affiliation}
+                            </p>
+                          )}
+                        </div>
+
+                        <span className="text-xs text-muted-foreground flex-shrink-0">
+                          Author {i + 1}
+                        </span>
+
+                        {isSelected && (
+                          <span className="text-xs font-medium text-primary flex-shrink-0 bg-primary/10 px-2 py-0.5 rounded-full">
+                            Corresponding
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -1697,35 +1724,27 @@ export default function SubmitPaper() {
                 <p className="font-medium text-muted-foreground">
                   Corresponding Author
                 </p>
-                {corrAuthorIsSelf ? (
-                  <p className="mt-1 text-muted-foreground italic text-sm">
-                    {user?.username} (submitting author) · {user?.email}
-                  </p>
-                ) : correspondingAuthor.name.trim() ? (
-                  <p className="mt-1">
-                    <span className="font-medium">
-                      {correspondingAuthor.name}
-                    </span>
-                    {correspondingAuthor.affiliation && (
-                      <span className="text-muted-foreground">
-                        {" "}
-                        · {correspondingAuthor.affiliation}
-                      </span>
-                    )}
-                    {correspondingAuthor.email && (
-                      <span className="text-muted-foreground">
-                        {" "}
-                        · {correspondingAuthor.email}
-                      </span>
-                    )}
-                    {correspondingAuthor.phone && (
-                      <span className="text-muted-foreground">
-                        {" "}
-                        · {correspondingAuthor.phone}
-                      </span>
-                    )}
-                  </p>
-                ) : null}
+                {(() => {
+                  const ca = authorDetails[correspondingAuthorIndex];
+                  if (!ca?.name.trim()) return null;
+                  return (
+                    <p className="mt-1">
+                      <span className="font-medium">{ca.name}</span>
+                      {ca.affiliation && (
+                        <span className="text-muted-foreground">
+                          {" "}
+                          · {ca.affiliation}
+                        </span>
+                      )}
+                      {ca.email && (
+                        <span className="text-muted-foreground">
+                          {" "}
+                          · {ca.email}
+                        </span>
+                      )}
+                    </p>
+                  );
+                })()}
               </div>
               <div>
                 <p className="font-medium text-muted-foreground">Keywords</p>

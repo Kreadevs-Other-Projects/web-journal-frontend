@@ -619,7 +619,10 @@ export default function ReviewerDashboard() {
                         size="sm"
                         onClick={() =>
                           window.open(
-                            getFileUrl(selectedVersion?.file_url || selectedPaper.file_url),
+                            getFileUrl(
+                              selectedVersion?.file_url ||
+                                selectedPaper.file_url,
+                            ),
                             "_blank",
                           )
                         }
@@ -630,11 +633,21 @@ export default function ReviewerDashboard() {
                         variant="ghost"
                         size="sm"
                         onClick={() => {
-                          const fileUrl = selectedVersion?.file_url || selectedPaper.file_url || "";
-                          const ext = fileUrl.split(".").pop()?.split("?")[0]?.toLowerCase() || "";
+                          const fileUrl =
+                            selectedVersion?.file_url ||
+                            selectedPaper.file_url ||
+                            "";
+                          const ext =
+                            fileUrl
+                              .split(".")
+                              .pop()
+                              ?.split("?")[0]
+                              ?.toLowerCase() || "";
                           const link = document.createElement("a");
                           link.href = getFileUrl(fileUrl);
-                          link.download = ext ? `${selectedPaper.title}.${ext}` : selectedPaper.title;
+                          link.download = ext
+                            ? `${selectedPaper.title}.${ext}`
+                            : selectedPaper.title;
                           document.body.appendChild(link);
                           link.click();
                           document.body.removeChild(link);
@@ -884,7 +897,9 @@ export default function ReviewerDashboard() {
 
                     {selectedPaper.comments && (
                       <div className="space-y-2">
-                        <Label className="text-sm font-medium">Comments Submitted</Label>
+                        <Label className="text-sm font-medium">
+                          Comments Submitted
+                        </Label>
                         <ReviewCommentDisplay
                           comments={selectedPaper.comments}
                           showConfidential={false}

@@ -453,6 +453,26 @@ export default function RevisionPaper() {
     ),
   );
 
+  const renderPolicyContent = (content: string | null) => {
+    if (!content)
+      return (
+        <p className="text-sm text-muted-foreground">No policy available.</p>
+      );
+    if (content.trimStart().startsWith("<")) {
+      return (
+        <div
+          className="prose prose-sm dark:prose-invert max-w-none text-sm"
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content) }}
+        />
+      );
+    }
+    return (
+      <p className="text-sm text-muted-foreground whitespace-pre-line">
+        {content}
+      </p>
+    );
+  };
+
   return (
     <DashboardLayout role={user?.role} userName={user?.username}>
       <div className="space-y-8">
@@ -1311,7 +1331,7 @@ export default function RevisionPaper() {
                               Comments for Authors:
                             </p>
                             <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                              {reviewer.comments}
+                              {renderPolicyContent(reviewer.comments)}
                             </p>
                           </div>
                         )}
@@ -1322,7 +1342,9 @@ export default function RevisionPaper() {
                               Confidential Comments (AE only):
                             </p>
                             <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
-                              {reviewer.confidential_comments}
+                              {renderPolicyContent(
+                                reviewer.confidential_comments,
+                              )}
                             </p>
                           </div>
                         )}
