@@ -98,10 +98,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const fetchProfile = async () => {
     const res = await fetch(`${url}/profile/getProfile`);
+
     if (!res.ok) throw new Error("Not authenticated");
+
     const data = await res.json();
     if (!data.success) throw new Error(data.message || "Not authenticated");
+
     setUser(profileToAuthUser(data.data.user));
+
     setToken("cookie");
   };
 
@@ -151,13 +155,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const logout = async () => {
     const res = await fetch(`${url}/auth/logout`, { method: "POST" });
-    const data = await res.json();
-    if (!res.ok || !data.success)
-      throw new Error(data.message || "Failed to logout");
+    if (!res.ok) throw new Error("Failed to logout");
     setUser(null);
     setToken(null);
     setUserData(null);
   };
+
   const hasAnyRole = (roles: string[]) =>
     user?.roles?.some((r) => roles.includes(r.role)) ?? false;
 
