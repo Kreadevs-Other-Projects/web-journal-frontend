@@ -1,15 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import {
-  BookOpen,
-  User,
-  Users,
-  UserCheck,
-  Shield,
-  Eye,
-  EyeOff,
-} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { BookOpen, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PageTransition } from "@/components/AnimationWrappers";
@@ -17,12 +9,10 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { UserRole, roleConfig } from "@/lib/roles";
-import { url } from "../url";
 import { OtpInput } from "@/components/OtpInput";
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const [selectedRole, setSelectedRole] = useState<UserRole>("publisher");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -30,7 +20,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState<"credentials" | "otp">("credentials");
 
-  const { login } = useAuth();
+  const { login, verifyLoginOtp, resendLoginOtp } = useAuth();
   const { toast } = useToast();
   const [otpError, setOtpError] = useState("");
 
@@ -49,24 +39,12 @@ export default function LoginPage() {
     try {
       setIsLoading(true);
 
-      const response = await fetch(`${url}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: email.trim(),
-          password: password.trim(),
-          role: selectedRole,
-          purpose: "login",
-        }),
+      await login({
+        email: email.trim(),
+        password: password.trim(),
+        role: selectedRole,
       });
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || "Login failed");
-      }
-
-      // Credentials accepted — server sent OTP, move to verification step
       setStep("otp");
       toast({
         title: "Verification code sent",
@@ -88,26 +66,7 @@ export default function LoginPage() {
       setIsLoading(true);
       setOtpError("");
 
-      const response = await fetch(`${url}/auth/verifyLoginOTP`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: email.trim(),
-          otp: otpCode,
-          role: selectedRole,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        setOtpError(result.message || "OTP verification failed");
-        return;
-      }
-
-      login(result.token);
-      localStorage.setItem("user", JSON.stringify(result.user));
-      localStorage.setItem("refreshToken", result.refreshToken);
+      await verifyLoginOtp(email.trim(), otpCode, selectedRole);
 
       const activeRole = selectedRole as UserRole;
       navigate(roleConfig[activeRole].route, { replace: true });
@@ -125,15 +84,7 @@ export default function LoginPage() {
   };
 
   const handleResendOtp = async () => {
-    const response = await fetch(`${url}/auth/resend`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: email.trim(), purpose: "login" }),
-    });
-    if (!response.ok) {
-      const result = await response.json();
-      throw new Error(result.message || "Failed to resend OTP");
-    }
+    await resendLoginOtp(email.trim());
     setOtpError("");
     toast({
       title: "Code resent",

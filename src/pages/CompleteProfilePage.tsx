@@ -104,8 +104,7 @@ export default function CompleteProfilePage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
 
-      // Update token so profile_completed = true
-      login(data.token);
+      await login();
 
       toast({
         title: "Profile complete!",

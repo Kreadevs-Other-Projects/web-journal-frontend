@@ -112,11 +112,7 @@ export default function AcceptInvitation() {
       if (!res.ok)
         throw new Error(data.message || "Failed to accept invitation");
 
-      // Log user in with the returned token
-      if (data.refreshToken) {
-        localStorage.setItem("refreshToken", data.refreshToken);
-      }
-      await login(data.token);
+      await login();
       setPageState("success");
     } catch (err: any) {
       toast({
@@ -182,10 +178,9 @@ export default function AcceptInvitation() {
             <Button
               className="w-full"
               onClick={() =>
-                navigate(
-                  ROLE_ROUTES[invitation?.role ?? ""] ?? "/",
-                  { replace: true },
-                )
+                navigate(ROLE_ROUTES[invitation?.role ?? ""] ?? "/", {
+                  replace: true,
+                })
               }
             >
               Go to Dashboard

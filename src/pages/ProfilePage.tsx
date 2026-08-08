@@ -109,7 +109,11 @@ export default function ProfilePage() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > 5 * 1024 * 1024) {
-      toast({ title: "File too large", description: "Max 5MB per file.", variant: "destructive" });
+      toast({
+        title: "File too large",
+        description: "Max 5MB per file.",
+        variant: "destructive",
+      });
       return;
     }
     setUploadingCert(true);
@@ -126,7 +130,11 @@ export default function ProfilePage() {
       toast({ title: "Uploaded", description: "Certification added." });
       fetchCertifications();
     } catch (err: any) {
-      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+      toast({
+        title: "Upload failed",
+        description: err.message,
+        variant: "destructive",
+      });
     } finally {
       setUploadingCert(false);
       if (certInputRef.current) certInputRef.current.value = "";
@@ -144,7 +152,11 @@ export default function ProfilePage() {
       toast({ title: "Deleted", description: "Certification removed." });
       fetchCertifications();
     } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+      toast({
+        title: "Error",
+        description: err.message,
+        variant: "destructive",
+      });
     }
   };
 
@@ -280,9 +292,6 @@ export default function ProfilePage() {
       const result = await res.json();
 
       if (result.success) {
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-
         toast({
           title: "Success",
           description: "Account deleted successfully",
@@ -543,7 +552,9 @@ export default function ProfilePage() {
                             disabled
                             className="bg-muted cursor-not-allowed text-muted-foreground"
                           />
-                          <p className="text-xs text-muted-foreground">Email cannot be changed. Contact support if needed.</p>
+                          <p className="text-xs text-muted-foreground">
+                            Email cannot be changed. Contact support if needed.
+                          </p>
                         </div>
                         <div className="space-y-4">
                           <Label className="flex items-center gap-2 text-sm">
@@ -615,22 +626,52 @@ export default function ProfilePage() {
 
                         <div className="space-y-3">
                           <Label>Certifications &amp; Documents</Label>
-                          <p className="text-xs text-muted-foreground">PDF, JPG, PNG · max 5MB each · up to 5 files</p>
+                          <p className="text-xs text-muted-foreground">
+                            PDF, JPG, PNG · max 5MB each · up to 5 files
+                          </p>
                           {certifications.length > 0 && (
                             <div className="space-y-2">
                               {certifications.map((cert) => (
-                                <div key={cert.id} className="flex items-center justify-between gap-3 rounded-md border p-2.5 text-sm bg-muted/30">
+                                <div
+                                  key={cert.id}
+                                  className="flex items-center justify-between gap-3 rounded-md border p-2.5 text-sm bg-muted/30"
+                                >
                                   <div className="min-w-0 flex-1">
-                                    <p className="font-medium truncate">{cert.file_name}</p>
-                                    <p className="text-xs text-muted-foreground">{new Date(cert.uploaded_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</p>
+                                    <p className="font-medium truncate">
+                                      {cert.file_name}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground">
+                                      {new Date(
+                                        cert.uploaded_at,
+                                      ).toLocaleDateString("en-GB", {
+                                        day: "2-digit",
+                                        month: "short",
+                                        year: "numeric",
+                                      })}
+                                    </p>
                                   </div>
                                   <div className="flex gap-1.5 shrink-0">
-                                    <a href={cert.file_url} target="_blank" rel="noopener noreferrer">
-                                      <Button type="button" variant="outline" size="sm" className="h-7 px-2 text-xs gap-1">
+                                    <a
+                                      href={cert.file_url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                    >
+                                      <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-7 px-2 text-xs gap-1"
+                                      >
                                         <Download className="h-3 w-3" /> View
                                       </Button>
                                     </a>
-                                    <Button type="button" variant="outline" size="sm" className="h-7 px-2 text-xs text-destructive border-destructive/30 hover:bg-destructive/10" onClick={() => handleCertDelete(cert.id)}>
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="sm"
+                                      className="h-7 px-2 text-xs text-destructive border-destructive/30 hover:bg-destructive/10"
+                                      onClick={() => handleCertDelete(cert.id)}
+                                    >
                                       <Trash2 className="h-3 w-3" />
                                     </Button>
                                   </div>
@@ -647,19 +688,32 @@ export default function ProfilePage() {
                                 className="flex w-full flex-col items-center gap-2 rounded-lg border-2 border-dashed border-border p-5 text-sm text-muted-foreground hover:border-primary hover:text-primary transition-colors disabled:opacity-50"
                               >
                                 {uploadingCert ? (
-                                  <span className="flex items-center gap-2"><span className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" /> Uploading…</span>
+                                  <span className="flex items-center gap-2">
+                                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />{" "}
+                                    Uploading…
+                                  </span>
                                 ) : (
                                   <>
                                     <Upload className="h-5 w-5" />
-                                    <span>Click or drag to upload a certification</span>
+                                    <span>
+                                      Click or drag to upload a certification
+                                    </span>
                                   </>
                                 )}
                               </button>
-                              <input ref={certInputRef} type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png" onChange={handleCertUpload} />
+                              <input
+                                ref={certInputRef}
+                                type="file"
+                                className="hidden"
+                                accept=".pdf,.jpg,.jpeg,.png"
+                                onChange={handleCertUpload}
+                              />
                             </>
                           )}
                           {certifications.length >= 5 && (
-                            <p className="text-xs text-muted-foreground">Maximum 5 certifications reached.</p>
+                            <p className="text-xs text-muted-foreground">
+                              Maximum 5 certifications reached.
+                            </p>
                           )}
                         </div>
 
@@ -900,7 +954,6 @@ export default function ProfilePage() {
                       </Button>
                     </CardContent>
                   </Card>
-
                 </div>
               </div>
             </TabsContent>

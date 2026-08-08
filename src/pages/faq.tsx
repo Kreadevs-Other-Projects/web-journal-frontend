@@ -1,7 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
-  BookOpen,
   Search,
   FileText,
   Users,
@@ -11,18 +10,10 @@ import {
   MessageCircle,
   HelpCircle,
   ChevronDown,
-  ExternalLink,
-  GraduationCap,
   Shield,
-  Sparkles,
   Download,
   Upload,
   Eye,
-  CreditCard,
-  Globe,
-  BookMarked,
-  PenTool,
-  CheckCircle,
 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";

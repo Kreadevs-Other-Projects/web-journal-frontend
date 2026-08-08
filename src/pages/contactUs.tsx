@@ -11,7 +11,6 @@ import {
   FileText,
   HelpCircle,
   Globe,
-  BookOpen,
   Twitter,
   Linkedin,
   Facebook,
@@ -21,7 +20,6 @@ import {
   ArrowRight,
   Sparkles,
   GraduationCap,
-  Library,
   Calendar,
   Users,
 } from "lucide-react";

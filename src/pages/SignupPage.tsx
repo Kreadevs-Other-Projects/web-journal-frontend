@@ -12,9 +12,6 @@ import {
   ArrowRight,
   Shield,
   Settings,
-  Edit,
-  Users,
-  UserCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -112,7 +109,6 @@ export default function SignupPage() {
     setShowSignInLink(false);
 
     try {
-      // Step 1: send OTP to email before creating account
       const otpRes = await fetch(`${url}/auth/create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -126,7 +122,6 @@ export default function SignupPage() {
       const otpResult = await otpRes.json();
 
       if (!otpRes.ok) {
-        // Duplicate role — show error on the form without sending OTP
         if (
           otpRes.status === 409 &&
           otpResult.errors &&
@@ -162,7 +157,6 @@ export default function SignupPage() {
     setOtpError("");
 
     try {
-      // Step 2: verify OTP
       const verifyRes = await fetch(`${url}/auth/verifysignup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -176,7 +170,6 @@ export default function SignupPage() {
         return;
       }
 
-      // Step 3: create account (backend checks OTP was verified)
       const signupRes = await fetch(`${url}/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -190,12 +183,8 @@ export default function SignupPage() {
 
       const signupResult = await signupRes.json();
 
-      // Existing account + new role: server returns a JWT
-      if (signupRes.ok && signupResult.token) {
-        login(signupResult.token);
-        if (signupResult.refreshToken) {
-          localStorage.setItem("refreshToken", signupResult.refreshToken);
-        }
+      if (signupRes.ok && signupResult.user) {
+        await login();
         const addedRole: string =
           signupResult.user?.active_role ?? selectedRole;
         const roleLabel =

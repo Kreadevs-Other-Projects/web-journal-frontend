@@ -168,7 +168,6 @@ export default function ResearchPaperDetail() {
   const [isLoading, setIsLoading] = useState(false);
   const [publicPaper, setPublicPaper] = useState<PublicPaper | null>(null);
 
-  // Review form state
   const [decision, setDecision] = useState<string>("");
   const [comments, setComments] = useState("");
   const [confidentialComments, setConfidentialComments] = useState("");
@@ -179,7 +178,6 @@ export default function ResearchPaperDetail() {
   const [htmlContent, setHtmlContent] = useState<string | null>(null);
   const [htmlLoading, setHtmlLoading] = useState(false);
 
-  // Fetch real public paper data for metadata display
   useEffect(() => {
     if (!paperId) return;
     setIsLoading(true);
@@ -200,7 +198,6 @@ export default function ResearchPaperDetail() {
     fetchPaper();
   }, [paperId]);
 
-  // Option B: on-demand HTML fetch for .docx without cached html_content
   useEffect(() => {
     if (!publicPaper || htmlContent !== null) return;
     if (!publicPaper.file_url || !publicPaper.file_url.endsWith(".docx"))
@@ -223,10 +220,6 @@ export default function ResearchPaperDetail() {
     if (decision === "accept" || decision === "reject") {
       setSignatureModalOpen(true);
     } else {
-      // For revision decisions
-
-      // In real app: API call to submit review
-      // Then navigate back or show success message
       navigate("/reviewer/papers");
     }
   };
@@ -266,7 +259,6 @@ export default function ResearchPaperDetail() {
     <DashboardLayout role="reviewer" userName={user?.username}>
       <PageTransition>
         <div className="space-y-6">
-          {/* Public Article Metadata Panel */}
           {publicPaper && (
             <Card className="border-primary/20 bg-primary/5">
               <CardContent className="pt-5 pb-4">
@@ -386,7 +378,6 @@ export default function ResearchPaperDetail() {
             </Card>
           )}
 
-          {/* Header with navigation */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Button
@@ -414,7 +405,6 @@ export default function ResearchPaperDetail() {
             </div>
           </div>
 
-          {/* Paper title and metadata */}
           <Card className="glass-card">
             <CardContent className="p-6">
               <h2 className="text-xl font-bold text-foreground mb-4">
@@ -474,7 +464,6 @@ export default function ResearchPaperDetail() {
                 </div>
               </div>
 
-              {/* Keywords */}
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Keywords</Label>
                 <div className="flex flex-wrap gap-2">
@@ -488,7 +477,6 @@ export default function ResearchPaperDetail() {
             </CardContent>
           </Card>
 
-          {/* Main content with tabs */}
           <Tabs
             value={activeTab}
             onValueChange={setActiveTab}

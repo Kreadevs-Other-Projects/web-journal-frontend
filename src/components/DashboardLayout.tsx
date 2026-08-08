@@ -1,22 +1,12 @@
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import {
-  Home,
-  FileText,
-  Users,
-  Settings,
   LogOut,
   BookOpen,
-  UserCheck,
   Shield,
-  BarChart3,
   Menu,
   X,
-  Bell,
   Search,
-  Moon,
-  Sun,
-  Router,
   ChevronDown,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -31,7 +21,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import MySubmissions from "@/pages/author/MySubmissions";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { UserRole, roleConfig } from "@/lib/roles";
@@ -92,45 +81,12 @@ export function DashboardLayout({
 
   const handleLogout = async () => {
     try {
-      const refreshToken = localStorage.getItem("refreshToken");
-
-      if (!refreshToken) {
-        return toast({
-          title: "Error",
-          description: "Refresh token is missing, cannot logout",
-        });
-      }
-
-      const response = await fetch(`${url}/auth/logout`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ refreshToken }),
+      await logout();
+      toast({
+        title: "Successful",
+        description: "You are logged out successfully",
       });
-
-      const result = await response.json();
-
-      if (response.ok && result.success) {
-        toast({
-          title: "Successful",
-          description: "You are logged out successfully",
-        });
-
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-
-        logout();
-
-        setTimeout(() => {
-          navigate("/login");
-        }, 800);
-      } else {
-        toast({
-          title: "Failed",
-          description: result.message || "Failed to logout, please try again",
-        });
-      }
+      setTimeout(() => navigate("/login"), 800);
     } catch (err: any) {
       console.error("🔥 Error during logout:", err);
       toast({

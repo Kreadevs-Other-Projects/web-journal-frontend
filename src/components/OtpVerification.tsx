@@ -26,12 +26,15 @@ import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { url } from "@/url";
+import { useAuth } from "@/context/AuthContext";
+import type { UserRole } from "@/lib/roles";
 
 interface OtpVerificationProps {
   isOpen: boolean;
   onClose: () => void;
   email: string;
   type: "login" | "signup";
+  role?: UserRole;
   onVerificationSuccess: () => void;
   resendOtp: () => Promise<boolean>;
 }
@@ -41,9 +44,11 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   onClose,
   email,
   type,
+  role,
   onVerificationSuccess,
   resendOtp,
 }) => {
+  const { verifyLoginOtp } = useAuth();
   const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -150,23 +155,23 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
     setError("");
 
     try {
-      const endpoint =
-        type === "signup"
-          ? `${url}/auth/verifysignup`
-          : `${url}/auth/verifyLoginOTP`;
-
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          otp: otpString,
-        }),
-      });
-
-      const result = await response.json();
+      let result;
+      if (type === "login") {
+        await verifyLoginOtp(email, otpString, role ?? "publisher");
+        result = { success: true };
+      } else {
+        const response = await fetch(`${url}/auth/verifysignup`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            otp: otpString,
+          }),
+        });
+        result = await response.json();
+      }
 
       if (result.success) {
         setSuccess(true);
