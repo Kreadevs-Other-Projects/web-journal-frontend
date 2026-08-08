@@ -62,63 +62,24 @@ export default function LoginPage() {
   };
 
   const handleVerifyOtp = async (otpCode: string) => {
-    console.log("========== OTP LOGIN START ==========");
     try {
       setIsLoading(true);
       setOtpError("");
-      console.log("[OTP] Loading state:", true);
-      console.log("[OTP] Email:", email);
-      console.log("[OTP] Email trimmed:", email.trim());
-      console.log("[OTP] OTP code:", otpCode);
-      console.log("[OTP] Selected role:", selectedRole);
+
+      await verifyLoginOtp(email.trim(), otpCode, selectedRole);
+
       const activeRole = selectedRole as UserRole;
-      console.log("[OTP] Active role:", activeRole);
-      console.log("[OTP] Role config:", roleConfig[activeRole]);
-      if (!roleConfig[activeRole]) {
-        console.error(
-          "[OTP] ERROR: No role configuration found for:",
-          activeRole,
-        );
-        throw new Error(`Invalid role configuration: ${activeRole}`);
-      }
-      console.log("[OTP] Calling verifyLoginOtp()...");
-      const response = await verifyLoginOtp(
-        email.trim(),
-        otpCode,
-        selectedRole,
-      );
-      console.log("[OTP] verifyLoginOtp() SUCCESS");
-      console.log("[OTP] API response:", response);
-      console.log("[OTP] Checking authentication state after verification...");
-      console.log("[OTP] Navigating to:", roleConfig[activeRole].route);
       navigate(roleConfig[activeRole].route, { replace: true });
-      console.log("[OTP] Navigation completed");
+
       toast({
         title: "Login Successful",
         description: `Welcome ${roleConfig[activeRole].label}!`,
         variant: "default",
       });
-      console.log("[OTP] Success toast displayed");
-      console.log("========== OTP LOGIN SUCCESS ==========");
     } catch (error: any) {
-      console.error("========== OTP LOGIN FAILED ==========");
-      console.error("[OTP] Error object:", error);
-      console.error("[OTP] Error message:", error?.message);
-      console.error("[OTP] Error name:", error?.name);
-      console.error("[OTP] Error stack:", error?.stack);
-      console.error("[OTP] Error response:", error?.response);
-      console.error("[OTP] Response data:", error?.response?.data);
-      console.error("[OTP] Response status:", error?.response?.status);
-      console.error("[OTP] Current email:", email);
-      console.error("[OTP] Selected role:", selectedRole);
-      console.error("[OTP] OTP code:", otpCode);
-      setOtpError(error?.message || "OTP verification failed");
-      console.error("[OTP] OTP error state updated");
-      console.error("========== OTP LOGIN ERROR END ==========");
+      setOtpError(error.message || "OTP verification failed");
     } finally {
       setIsLoading(false);
-      console.log("[OTP] Loading state:", false);
-      console.log("========== OTP LOGIN FINISHED ==========");
     }
   };
 
