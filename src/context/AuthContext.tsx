@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import type { UserRole } from "@/lib/roles";
 import { url } from "@/url";
+import { extractApiErrorMessage, readApiError } from "@/lib/apiError";
 
 export interface UserRoleContext {
   role: string;
@@ -97,9 +98,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchProfile = async () => {
-    const res = await fetch(`${url}/profile/getProfile`);
+    const res = await fetch(`${url}/profile/getProfile`, {
+      credentials: "include",
+    });
 
-    if (!res.ok) throw new Error("Not authenticated");
+    if (!res.ok) throw new Error(await readApiError(res, "Not authenticated"));
 
     const data = await res.json();
     if (!data.success) throw new Error(data.message || "Not authenticated");
@@ -123,10 +126,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const res = await fetch(`${url}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ ...credentials, purpose: "login" }),
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.message || "Login failed");
+    if (!res.ok) throw new Error(extractApiErrorMessage(data, "Login failed"));
     return data;
   };
 
@@ -134,10 +138,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const res = await fetch(`${url}/auth/verifyLoginOTP`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ email, otp, role }),
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.message || "OTP verification failed");
+    if (!res.ok)
+      throw new Error(extractApiErrorMessage(data, "OTP verification failed"));
     await fetchProfile();
   };
 
@@ -145,17 +151,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const res = await fetch(`${url}/auth/resend`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ email, purpose: "login" }),
     });
     if (!res.ok) {
-      const data = await res.json();
-      throw new Error(data.message || "Failed to resend OTP");
+      throw new Error(await readApiError(res, "Failed to resend OTP"));
     }
   };
 
   const logout = async () => {
-    const res = await fetch(`${url}/auth/logout`, { method: "POST" });
-    if (!res.ok) throw new Error("Failed to logout");
+    const res = await fetch(`${url}/auth/logout`, {
+      method: "POST",
+      credentials: "include",
+    });
+    if (!res.ok) throw new Error(await readApiError(res, "Failed to logout"));
     setUser(null);
     setToken(null);
     setUserData(null);
@@ -172,11 +181,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const res = await fetch(`${url}/auth/switch-role`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ role, journal_id: journalId ?? null }),
     });
 
     const data = await res.json();
-    if (!res.ok) throw new Error(data.message || "Failed to switch role");
+    if (!res.ok)
+      throw new Error(extractApiErrorMessage(data, "Failed to switch role"));
     await login();
   };
 
@@ -184,7 +195,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     if (!token) return;
     const fetchProfileData = async () => {
       try {
-        const res = await fetch(`${url}/profile/getProfile`);
+        const res = await fetch(`${url}/profile/getProfile`, {
+          credentials: "include",
+        });
         const data = await res.json();
         if (data.success) {
           const { user: apiUser, profile: apiProfile } = data.data;

@@ -29,6 +29,7 @@ import { UserRole, roleConfig } from "@/lib/roles";
 import { url } from "../url";
 import { useAuth } from "@/context/AuthContext";
 import { OtpInput } from "@/components/OtpInput";
+import { extractApiErrorMessage, readApiError } from "@/lib/apiError";
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -112,6 +113,7 @@ export default function SignupPage() {
       const otpRes = await fetch(`${url}/auth/create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           email: formData.email,
           purpose: "signup",
@@ -136,7 +138,7 @@ export default function SignupPage() {
           return;
         }
         throw new Error(
-          otpResult.message || "Failed to send verification code",
+          extractApiErrorMessage(otpResult, "Failed to send verification code"),
         );
       }
 
@@ -145,8 +147,10 @@ export default function SignupPage() {
         title: "Verification code sent",
         description: `Check ${formData.email} for your 6-digit code`,
       });
-    } catch (error: any) {
-      setErrors({ general: error.message || "Signup failed" });
+    } catch (error) {
+      setErrors({
+        general: extractApiErrorMessage(error, "Signup failed"),
+      });
     } finally {
       setIsLoading(false);
     }
@@ -160,19 +164,21 @@ export default function SignupPage() {
       const verifyRes = await fetch(`${url}/auth/verifysignup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ email: formData.email, otp: otpCode }),
       });
 
       const verifyResult = await verifyRes.json();
 
       if (!verifyRes.ok) {
-        setOtpError(verifyResult.message || "Invalid OTP");
+        setOtpError(extractApiErrorMessage(verifyResult, "Invalid OTP"));
         return;
       }
 
       const signupRes = await fetch(`${url}/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           username: formData.username,
           email: formData.email,
@@ -217,7 +223,7 @@ export default function SignupPage() {
           setShowSignInLink(true);
           return;
         }
-        setOtpError(signupResult.message || "Signup failed");
+        setOtpError(extractApiErrorMessage(signupResult, "Signup failed"));
         return;
       }
 
@@ -226,8 +232,8 @@ export default function SignupPage() {
         description: "Signup successful! Please sign in.",
       });
       navigate("/login");
-    } catch (error: any) {
-      setOtpError(error.message || "Verification failed");
+    } catch (error) {
+      setOtpError(extractApiErrorMessage(error, "Verification failed"));
     } finally {
       setOtpLoading(false);
     }
@@ -237,11 +243,11 @@ export default function SignupPage() {
     const res = await fetch(`${url}/auth/create`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ email: formData.email, purpose: "signup" }),
     });
     if (!res.ok) {
-      const result = await res.json();
-      throw new Error(result.message || "Failed to resend OTP");
+      throw new Error(await readApiError(res, "Failed to resend OTP"));
     }
     setOtpError("");
     toast({

@@ -10,6 +10,8 @@ import AuthLayout from "./layouts/AuthLayout";
 
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import SignupPage from "./pages/SignupPage";
 import AboutPage from "./pages/aboutUs";
 import FAQPage from "./pages/faq";
@@ -125,6 +127,14 @@ const App = () => (
 
                   <Route element={<AuthLayout />}>
                     <Route path="/login" element={<LoginPage />} />
+                    <Route
+                      path="/forgot-password"
+                      element={<ForgotPasswordPage />}
+                    />
+                    <Route
+                      path="/reset-password"
+                      element={<ResetPasswordPage />}
+                    />
                     <Route path="/signup" element={<SignupPage />} />
                   </Route>
 
@@ -333,8 +343,10 @@ const App = () => (
                   </Route>
 
                   {/* ADMIN */}
-                  <Route path="/admin" element={<AdminDashboard />} />
-                  <Route path="/admin/*" element={<AdminDashboard />} />
+                  <Route element={<ProtectedRoute allowedRoles={["owner"]} />}>
+                    <Route path="/admin" element={<AdminDashboard />} />
+                    <Route path="/admin/*" element={<AdminDashboard />} />
+                  </Route>
 
                   {/* PROFILE */}
                   <Route element={<ProtectedRoute />}>

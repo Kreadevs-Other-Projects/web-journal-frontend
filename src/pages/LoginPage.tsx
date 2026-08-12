@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { BookOpen, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { UserRole, roleConfig } from "@/lib/roles";
 import { OtpInput } from "@/components/OtpInput";
+import { extractApiErrorMessage } from "@/lib/apiError";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -50,10 +51,10 @@ export default function LoginPage() {
         title: "Verification code sent",
         description: `Check ${email} for your 6-digit code`,
       });
-    } catch (error: any) {
+    } catch (error) {
       toast({
-        title: "Error",
-        description: error.message,
+        title: "Login failed",
+        description: extractApiErrorMessage(error, "Login failed"),
         variant: "destructive",
       });
     } finally {
@@ -76,20 +77,37 @@ export default function LoginPage() {
         description: `Welcome ${roleConfig[activeRole].label}!`,
         variant: "default",
       });
-    } catch (error: any) {
-      setOtpError(error.message || "OTP verification failed");
+    } catch (error) {
+      const message = extractApiErrorMessage(error, "OTP verification failed");
+      setOtpError(message);
+      toast({
+        title: "Verification failed",
+        description: message,
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleResendOtp = async () => {
-    await resendLoginOtp(email.trim());
-    setOtpError("");
-    toast({
-      title: "Code resent",
-      description: "Check your email for a new code",
-    });
+    try {
+      await resendLoginOtp(email.trim());
+      setOtpError("");
+      toast({
+        title: "Code resent",
+        description: "Check your email for a new code",
+      });
+    } catch (error) {
+      const message = extractApiErrorMessage(error, "Failed to resend OTP");
+      setOtpError(message);
+      toast({
+        title: "Resend failed",
+        description: message,
+        variant: "destructive",
+      });
+      throw error;
+    }
   };
 
   return (
@@ -331,6 +349,14 @@ export default function LoginPage() {
                   <Button type="submit" disabled={isLoading} className="w-full">
                     {isLoading ? "Sending code..." : "Sign In"}
                   </Button>
+                  <div className="text-right">
+                    <Link
+                      to="/forgot-password"
+                      className="text-sm text-primary font-medium hover:underline"
+                    >
+                      Forgot password?
+                    </Link>
+                  </div>
                 </form>
               ) : (
                 <OtpInput

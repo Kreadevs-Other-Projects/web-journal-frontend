@@ -4,7 +4,14 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { roleConfig } from "../lib/roles";
 import { LoadingSpinner } from "./ui/LoadingSpinner";
 
-const PUBLIC_ENTRY_PATHS = ["/", "/login", "/signup", "/initialCheckout"];
+const PUBLIC_ENTRY_PATHS = [
+  "/",
+  "/login",
+  "/signup",
+  "/forgot-password",
+  "/reset-password",
+  "/initialCheckout",
+];
 
 const InitialAuthCheck = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuth();
