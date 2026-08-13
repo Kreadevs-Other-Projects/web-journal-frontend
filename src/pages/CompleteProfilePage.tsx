@@ -79,8 +79,9 @@ export default function CompleteProfilePage() {
     if (!token) {
       toast({
         variant: "destructive",
-        title: "Session expired",
-        description: "Please sign in again to complete your profile.",
+        title: "Authentication unavailable",
+        description:
+          "Authentication information was not available for this request. Please sign in again.",
       });
       navigate("/login", { replace: true });
       return;
@@ -105,8 +106,19 @@ export default function CompleteProfilePage() {
 
     try {
       setSubmitting(true);
+      if (import.meta.env.DEV) {
+        console.info("profile complete request", {
+          authMode: "cookie+bearer",
+          credentialsEnabled: true,
+          authorizationPresent: Boolean(token),
+        });
+      }
       const res = await fetch(`${url}/profile/complete`, {
         method: "POST",
+        credentials: "include",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         body: formData,
       });
       if (!res.ok) {
@@ -131,7 +143,7 @@ export default function CompleteProfilePage() {
 
       const config = roleConfig[role];
       navigate(config?.route ?? "/", { replace: true });
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast({
         variant: "destructive",
         title: "Profile update failed",
