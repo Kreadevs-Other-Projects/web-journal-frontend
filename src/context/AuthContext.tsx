@@ -93,20 +93,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [userData, setUserData] = useState<UserProfile | null>(null);
-  // Presence marker only; the JWT remains in the HttpOnly cookie.
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchProfile = async () => {
-    const res = await fetch(`${url}/profile/getProfile`, {
+  const clearAuthState = () => {
+    setUser(null);
+    setToken(null);
+    setUserData(null);
+  };
+
+  const refreshSession = async () => {
+    const res = await fetch(`${url}/auth/token`, {
+      method: "POST",
+      credentials: "include",
+    });
+    return res.ok;
+  };
+
+  const fetchProfile = async (allowRefresh = true) => {
+    let res = await fetch(`${url}/profile/getProfile`, {
       credentials: "include",
     });
 
+    if (res.status === 401 && allowRefresh && (await refreshSession())) {
+      res = await fetch(`${url}/profile/getProfile`, {
+        credentials: "include",
+      });
+    }
+
     if (!res.ok) {
       if (res.status === 401) {
-        setUser(null);
-        setToken(null);
-        setUserData(null);
+        clearAuthState();
       }
       throw new Error(await readApiError(res, "Not authenticated"));
     }
@@ -177,9 +194,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       credentials: "include",
     });
     if (!res.ok) throw new Error(await readApiError(res, "Failed to logout"));
-    setUser(null);
-    setToken(null);
-    setUserData(null);
+    clearAuthState();
   };
 
   const hasAnyRole = (roles: string[]) =>

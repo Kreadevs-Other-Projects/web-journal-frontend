@@ -15,6 +15,15 @@ const extractValidationMessage = (errors: unknown) => {
   return null;
 };
 
+const isAuthSessionMessage = (message: string) =>
+  [
+    "Authorization token missing",
+    "Authentication required.",
+    "Invalid or expired token",
+    "Session expired.",
+    "Unauthorized",
+  ].includes(message);
+
 export const extractApiErrorMessage = (
   error: unknown,
   fallback = "Unable to complete the request. Please try again.",
@@ -31,7 +40,11 @@ export const extractApiErrorMessage = (
     const data = error as ApiErrorShape;
     const validationMessage = extractValidationMessage(data.errors);
     if (validationMessage) return validationMessage;
-    if (typeof data.message === "string") return data.message;
+    if (typeof data.message === "string") {
+      return isAuthSessionMessage(data.message)
+        ? "Your session has expired. Please sign in again."
+        : data.message;
+    }
     if (typeof data.error === "string") return data.error;
   }
 
@@ -44,10 +57,22 @@ export const readApiError = async (
 ) => {
   try {
     const data = await response.json();
+    if (
+      response.status === 401 &&
+      data &&
+      typeof data === "object" &&
+      "message" in data &&
+      typeof (data as ApiErrorShape).message === "string" &&
+      isAuthSessionMessage((data as ApiErrorShape).message as string)
+    ) {
+      return "Your session has expired. Please sign in again.";
+    }
     return extractApiErrorMessage(data, fallback);
   } catch {
-    if (response.status === 401) return "Your session has expired. Please sign in again.";
-    if (response.status === 403) return "You do not have permission to perform this action.";
+    if (response.status === 401)
+      return "Your session has expired. Please sign in again.";
+    if (response.status === 403)
+      return "You do not have permission to perform this action.";
     if (response.status >= 500) return "Server error. Please try again.";
     return fallback;
   }

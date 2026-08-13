@@ -147,11 +147,14 @@ const App = () => (
                     element={<AcceptInvitation />}
                   />
 
-                  <Route
-                    path="/complete-profile"
-                    element={<CompleteProfilePage />}
-                  />
                   <Route path="/unauthorized" element={<Unauthorized />} />
+
+                  <Route element={<ProtectedRoute />}>
+                    <Route
+                      path="/complete-profile"
+                      element={<CompleteProfilePage />}
+                    />
+                  </Route>
 
                   <Route
                     element={

@@ -19,7 +19,7 @@ const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
   }
 
   if (!isAuthenticated || !user) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
   // Redirect to profile completion if not done yet
@@ -28,7 +28,10 @@ const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
   }
 
   // Allow access if the user's active role OR any of their assigned roles matches
-  if (allowedRoles && !allowedRoles.some((r) => user.roles.some((ur) => ur.role === r))) {
+  if (
+    allowedRoles &&
+    !allowedRoles.some((r) => user.roles.some((ur) => ur.role === r))
+  ) {
     return <Navigate to="/unauthorized" replace />;
   }
 

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { url } from "@/url";
 import { useToast } from "@/hooks/use-toast";
+import { extractApiErrorMessage, readApiError } from "@/lib/apiError";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -75,7 +76,15 @@ export default function CompleteProfilePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!token) return;
+    if (!token) {
+      toast({
+        variant: "destructive",
+        title: "Session expired",
+        description: "Please sign in again to complete your profile.",
+      });
+      navigate("/login", { replace: true });
+      return;
+    }
 
     const formData = new FormData();
     if (displayName) formData.append("username", displayName);
@@ -98,11 +107,16 @@ export default function CompleteProfilePage() {
       setSubmitting(true);
       const res = await fetch(`${url}/profile/complete`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
+      if (!res.ok) {
+        throw new Error(
+          await readApiError(
+            res,
+            "Unable to complete your profile. Please try again.",
+          ),
+        );
+      }
 
       await login();
 
@@ -116,8 +130,11 @@ export default function CompleteProfilePage() {
     } catch (err: any) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: err.message,
+        title: "Profile update failed",
+        description: extractApiErrorMessage(
+          err,
+          "Unable to complete your profile. Please try again.",
+        ),
       });
     } finally {
       setSubmitting(false);

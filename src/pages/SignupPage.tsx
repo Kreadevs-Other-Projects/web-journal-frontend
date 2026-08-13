@@ -11,7 +11,6 @@ import {
   CheckCircle2,
   ArrowRight,
   Shield,
-  Settings,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,7 +24,6 @@ import {
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { UserRole, roleConfig } from "@/lib/roles";
 import { url } from "../url";
 import { useAuth } from "@/context/AuthContext";
 import { OtpInput } from "@/components/OtpInput";
@@ -40,7 +38,6 @@ export default function SignupPage() {
     password: "",
   });
 
-  const [selectedRole, setSelectedRole] = useState<UserRole>("author");
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showSignInLink, setShowSignInLink] = useState(false);
@@ -62,10 +59,6 @@ export default function SignupPage() {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
     if (name === "email") setShowSignInLink(false);
-  };
-
-  const handleRoleSelect = (role: UserRole) => {
-    setSelectedRole(role);
   };
 
   const validateForm = () => {
@@ -488,77 +481,24 @@ export default function SignupPage() {
                   )}
                 </div>
 
-                <div className="hidden">
-                  <Label className="flex items-center gap-2 text-sm font-medium">
-                    <Settings className="h-4 w-4 text-primary" />
-                    Select Your Role
-                  </Label>
-
-                  <div className="grid grid-cols-3 gap-2">
-                    {(["publisher", "author", "reviewer"] as UserRole[]).map(
-                      (role) => {
-                        const config = roleConfig[role];
-                        const Icon = config.icon;
-                        const isSelected = selectedRole === role;
-
-                        return (
-                          <motion.button
-                            key={role}
-                            type="button"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => handleRoleSelect(role)}
-                            className={cn(
-                              "relative p-3 rounded-xl flex flex-col items-center gap-1 transition-all duration-200 border",
-                              isSelected
-                                ? "bg-primary text-primary-foreground shadow-glow border-primary"
-                                : "bg-muted/50 text-muted-foreground hover:bg-muted border-border",
-                            )}
-                          >
-                            <Icon className="h-5 w-5" />
-                            <span className="text-[10px] font-medium uppercase tracking-wider">
-                              {config.label}
-                            </span>
-                            {isSelected && (
-                              <motion.div
-                                layoutId="roleIndicator"
-                                className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-1 w-6 rounded-full bg-primary"
-                              />
-                            )}
-                          </motion.button>
-                        );
-                      },
+                {errors.role && (
+                  <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                    <p className="text-sm text-destructive flex items-center gap-1">
+                      <Shield className="h-3 w-3 shrink-0" />
+                      {errors.role}
+                    </p>
+                    {showSignInLink && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        <Link
+                          to="/login"
+                          className="text-primary font-medium hover:underline"
+                        >
+                          Sign in instead →
+                        </Link>
+                      </p>
                     )}
                   </div>
-
-                  <div className="p-3 bg-muted/30 rounded-lg border border-border">
-                    <p className="text-xs text-muted-foreground text-center">
-                      <span className="font-medium text-foreground">
-                        {roleConfig[selectedRole].label}
-                      </span>{" "}
-                      - {roleConfig[selectedRole].description}
-                    </p>
-                  </div>
-
-                  {errors.role && (
-                    <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
-                      <p className="text-sm text-destructive flex items-center gap-1">
-                        <Shield className="h-3 w-3 shrink-0" />
-                        {errors.role}
-                      </p>
-                      {showSignInLink && (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          <Link
-                            to="/login"
-                            className="text-primary font-medium hover:underline"
-                          >
-                            Sign in instead →
-                          </Link>
-                        </p>
-                      )}
-                    </div>
-                  )}
-                </div>
+                )}
 
                 {errors.general && (
                   <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">

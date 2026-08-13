@@ -105,6 +105,7 @@ export default function AcceptInvitation() {
       const res = await fetch(`${url}/invitations/accept/${token}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ password }),
       });
       const data = await res.json();
