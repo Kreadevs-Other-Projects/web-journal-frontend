@@ -102,7 +102,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       credentials: "include",
     });
 
-    if (!res.ok) throw new Error(await readApiError(res, "Not authenticated"));
+    if (!res.ok) {
+      if (res.status === 401) {
+        setUser(null);
+        setToken(null);
+        setUserData(null);
+      }
+      throw new Error(await readApiError(res, "Not authenticated"));
+    }
 
     const data = await res.json();
     if (!data.success) throw new Error(data.message || "Not authenticated");
@@ -144,6 +151,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const data = await res.json();
     if (!res.ok)
       throw new Error(extractApiErrorMessage(data, "OTP verification failed"));
+    if (data.user) {
+      setUser(profileToAuthUser(data.user));
+      setToken("cookie");
+      return;
+    }
     await fetchProfile();
   };
 

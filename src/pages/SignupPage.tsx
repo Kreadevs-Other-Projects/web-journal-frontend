@@ -40,7 +40,7 @@ export default function SignupPage() {
     password: "",
   });
 
-  const [selectedRole, setSelectedRole] = useState<UserRole>("publisher");
+  const [selectedRole, setSelectedRole] = useState<UserRole>("author");
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showSignInLink, setShowSignInLink] = useState(false);
@@ -117,7 +117,6 @@ export default function SignupPage() {
         body: JSON.stringify({
           email: formData.email,
           purpose: "signup",
-          role: selectedRole,
         }),
       });
 
@@ -183,7 +182,6 @@ export default function SignupPage() {
           username: formData.username,
           email: formData.email,
           password: formData.password,
-          role: selectedRole,
         }),
       });
 
@@ -191,8 +189,7 @@ export default function SignupPage() {
 
       if (signupRes.ok && signupResult.user) {
         await login();
-        const addedRole: string =
-          signupResult.user?.active_role ?? selectedRole;
+        const addedRole: string = signupResult.user?.active_role ?? "author";
         const roleLabel =
           addedRole.charAt(0).toUpperCase() + addedRole.slice(1);
         toast({
@@ -201,12 +198,7 @@ export default function SignupPage() {
             signupResult.message ||
             `You can now access the ${roleLabel} dashboard.`,
         });
-        const roleRoutes: Record<string, string> = {
-          author: "/author",
-          reviewer: "/reviewer",
-          publisher: "/publisher",
-        };
-        navigate(roleRoutes[addedRole] ?? "/");
+        navigate(addedRole === "author" ? "/author" : "/");
         return;
       }
 
@@ -496,7 +488,7 @@ export default function SignupPage() {
                   )}
                 </div>
 
-                <div className="space-y-3 pt-2">
+                <div className="hidden">
                   <Label className="flex items-center gap-2 text-sm font-medium">
                     <Settings className="h-4 w-4 text-primary" />
                     Select Your Role
