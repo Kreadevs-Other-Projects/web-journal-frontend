@@ -39,6 +39,9 @@ export interface LoginCredentials {
   password: string;
   role: UserRole;
 }
+interface AuthResponseWithToken {
+  accessToken?: unknown;
+}
 interface AuthContextType {
   user: AuthUser | null;
   userData: UserProfile | null;
@@ -88,18 +91,35 @@ function profileToAuthUser(apiUser: any): AuthUser {
   };
 }
 
+const readStoredAccessToken = () => sessionStorage.getItem("accessToken");
+
+const storeAccessToken = (value: unknown) => {
+  if (typeof value === "string" && value.trim()) {
+    sessionStorage.setItem("accessToken", value);
+    return value;
+  }
+  return null;
+};
+
+const clearStoredAccessToken = () => {
+  sessionStorage.removeItem("accessToken");
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [userData, setUserData] = useState<UserProfile | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(() =>
+    readStoredAccessToken(),
+  );
   const [isLoading, setIsLoading] = useState(true);
 
   const clearAuthState = () => {
     setUser(null);
     setToken(null);
     setUserData(null);
+    clearStoredAccessToken();
   };
 
   const refreshSession = async () => {
@@ -107,7 +127,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       method: "POST",
       credentials: "include",
     });
-    return res.ok;
+    if (!res.ok) return false;
+    const data = (await res.json().catch(() => ({}))) as AuthResponseWithToken;
+    const refreshedToken = storeAccessToken(data.accessToken);
+    if (refreshedToken) setToken(refreshedToken);
+    return true;
   };
 
   const fetchProfile = async (allowRefresh = true) => {
@@ -133,7 +157,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
     setUser(profileToAuthUser(data.data.user));
 
-    setToken("cookie");
+    let storedToken = readStoredAccessToken();
+    if (!storedToken && allowRefresh) {
+      await refreshSession();
+      storedToken = readStoredAccessToken();
+    }
+    if (storedToken) setToken(storedToken);
   };
 
   useEffect(() => {
@@ -168,12 +197,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const data = await res.json();
     if (!res.ok)
       throw new Error(extractApiErrorMessage(data, "OTP verification failed"));
-    if (data.user) {
-      setUser(profileToAuthUser(data.user));
-      setToken("cookie");
-      return;
-    }
-    await fetchProfile();
+    const accessToken = storeAccessToken(
+      (data as AuthResponseWithToken).accessToken,
+    );
+    if (accessToken) setToken(accessToken);
+    await fetchProfile(false);
   };
 
   const resendLoginOtp = async (email: string) => {
@@ -215,6 +243,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const data = await res.json();
     if (!res.ok)
       throw new Error(extractApiErrorMessage(data, "Failed to switch role"));
+    const accessToken = storeAccessToken(
+      (data as AuthResponseWithToken).accessToken,
+    );
+    if (accessToken) setToken(accessToken);
     await login();
   };
 

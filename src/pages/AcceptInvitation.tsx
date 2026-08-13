@@ -113,6 +113,9 @@ export default function AcceptInvitation() {
       if (!res.ok)
         throw new Error(data.message || "Failed to accept invitation");
 
+      if (typeof data.accessToken === "string" && data.accessToken.trim()) {
+        sessionStorage.setItem("accessToken", data.accessToken);
+      }
       await login();
       setPageState("success");
     } catch (err: any) {

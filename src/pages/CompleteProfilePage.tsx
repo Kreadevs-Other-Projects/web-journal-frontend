@@ -117,6 +117,10 @@ export default function CompleteProfilePage() {
           ),
         );
       }
+      const data = await res.json();
+      if (typeof data.accessToken === "string" && data.accessToken.trim()) {
+        sessionStorage.setItem("accessToken", data.accessToken);
+      }
 
       await login();
 

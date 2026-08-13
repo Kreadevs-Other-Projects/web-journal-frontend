@@ -21,8 +21,19 @@ const isAuthSessionMessage = (message: string) =>
     "Authentication required.",
     "Invalid or expired token",
     "Session expired.",
+    "Invalid session.",
     "Unauthorized",
   ].includes(message);
+
+const authSessionMessage = (message: string) => {
+  if (message === "Authentication required.") {
+    return "Authentication information was not sent with this request.";
+  }
+  if (message === "Invalid session.") {
+    return "Your session is invalid. Please sign in again.";
+  }
+  return "Your session has expired. Please sign in again.";
+};
 
 export const extractApiErrorMessage = (
   error: unknown,
@@ -42,7 +53,7 @@ export const extractApiErrorMessage = (
     if (validationMessage) return validationMessage;
     if (typeof data.message === "string") {
       return isAuthSessionMessage(data.message)
-        ? "Your session has expired. Please sign in again."
+        ? authSessionMessage(data.message)
         : data.message;
     }
     if (typeof data.error === "string") return data.error;
@@ -57,15 +68,13 @@ export const readApiError = async (
 ) => {
   try {
     const data = await response.json();
+    const apiMessage = data && typeof data === "object" ? (data as ApiErrorShape).message : undefined;
     if (
       response.status === 401 &&
-      data &&
-      typeof data === "object" &&
-      "message" in data &&
-      typeof (data as ApiErrorShape).message === "string" &&
-      isAuthSessionMessage((data as ApiErrorShape).message as string)
+      typeof apiMessage === "string" &&
+      isAuthSessionMessage(apiMessage)
     ) {
-      return "Your session has expired. Please sign in again.";
+      return authSessionMessage(apiMessage);
     }
     return extractApiErrorMessage(data, fallback);
   } catch {
